@@ -7,7 +7,9 @@ Since I am learning, there may be parts of the code that may not be properly imp
 ## Dependencies
 
 **vite**
+
 **Tailwindcss postcss autoprefixer** - as per Tailwindcss installation instructions.
+
 **html-to-react** - to parse HTML in API response.
 
 ## Database API
