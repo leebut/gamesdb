@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Parser } from "html-to-react";
 import "./App.css";
 
-const apiKey = "blahblah";
+const apiKey = import.meta.env.VITE_API_KEY;
 const searchTerm = "search";
-const query = "alien isolation";
+const query = "alan wake";
 const resources = "game";
 const baseUrl = `https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json`;
 const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
@@ -64,6 +64,8 @@ export default function App() {
   );
 }
 
+// Display the searchbar.
+
 function SearchBar({ onHandleInput }) {
   return (
     <header className="flex justify-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
@@ -80,6 +82,10 @@ function SearchBar({ onHandleInput }) {
     </header>
   );
 }
+
+// Show the list of games from the API response. I decided not to create
+// another component for the list items to reduce the amount of
+// propdrilling and number of components.
 
 function GamesList({ gamesList, onHandleShowDetails }) {
   return (
@@ -121,8 +127,10 @@ function GamesList({ gamesList, onHandleShowDetails }) {
               >
                 {games.site_detail_url}
               </a>
+
+              {/* Open and close modal button */}
               <button
-                className="absolute flex justify-center items-center text-white font-bold  bg-pink-800 w-20 h-10 right-0 top-0 cursor-pointer"
+                className="absolute flex justify-center items-center text-white font-bold  bg-pink-800/50 w-20 h-10 right-0 top-0 cursor-pointer hover:bg-pink-600 transition-all"
                 onClick={() => {
                   onHandleShowDetails(games.id);
                 }}
@@ -137,6 +145,11 @@ function GamesList({ gamesList, onHandleShowDetails }) {
   );
 }
 
+// The games modal
+// The response from the API includes a description of many of the games in
+// HTML format. I found html-to-react on NPM to parse it. I need to learn it
+// beyond the basic call so that I can present the data better.
+
 function GameModal({
   gamesList,
   gameId,
@@ -147,21 +160,24 @@ function GameModal({
   return (
     <>
       <dialog
-        className="flex flex-col justify-start items-center w-screen h-screen bg-slate-700/90 fixed top-0 left-0"
+        className="flex flex-col justify-start items-center w-screen h-screen bg-slate-700/95 fixed overflow-y-scroll top-0 left-0"
         open={showDetails}
         onClose={() => setShowDetails(false)}
       >
-        <section className="grid overflow-scroll">
+        <section className="grid grid-cols-1">
           {gamesList?.map(
             (games) =>
               games.id === gameId && (
                 <>
                   <img src={games.image.screen_url} alt={games.name} />
-                  <p className="text-2xl text-white p-2 bg-slate-800/40">
-                    {games.deck}!
+                  <h2 className="text-3xl font-bold text-slate-300 mt-3 ml-3">
+                    Deck Intro
+                  </h2>
+                  <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
+                    {games.deck}
                   </p>
                   {games.description ? (
-                    <article className="bg-yellow-100">
+                    <article className="flex flex-col bg-slate-800/40 p-4 text-xl text-slate-300 overflow-y-scroll overflow-x-hidden">
                       {Parser().parse(games.description)}
                     </article>
                   ) : (

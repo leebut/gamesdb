@@ -8,3 +8,25 @@ html {
 body {
   background: rgb(44, 44, 44);
 }
+
+article a:link {
+  color: white;
+}
+article h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+article h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+article p {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+article ul {
+  list-style-type: square;
+  margin-left: 1rem;
+}
