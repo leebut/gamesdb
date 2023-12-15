@@ -1,13 +1,22 @@
 # Games Database React App
 
 This is a project in progress, so it is not yet complete.
-I am learning React from Jonas Schmedtmann om Udemy.
+I am learning React from Jonas Schmedtmann on Udemy.
 Since I am learning, there may be parts of the code that may not be properly implemented.
+
+## Dependencies
+
+**vite**
+**Tailwindcss postcss autoprefixer** - as per Tailwindcss installation instructions.
+**html-to-react** - to parse HTML in API response.
 
 ## Database API
 
-I am using the API from [https://www.giantbomb.com](https://www.giantbomb.com)
-You can optain a free api key from [https://www.giantbomb.com/api](https://www.giantbomb.com/api)
+I am using a games database API from [https://www.giantbomb.com](https://www.giantbomb.com).
+
+You can obtain a free api key from [https://www.giantbomb.com/api](https://www.giantbomb.com/api)
+
+My API key is in **.env** of the project root, which is not uploaded to Github. When you get your key, paste it into .env as **VITE_API_KEY**.
 
 ## Functionality
 
