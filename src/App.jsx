@@ -15,6 +15,12 @@ export default function App() {
   const [gameId, setGameId] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
+  // const [savedGames, setSavedGames] = useState([]);
+  const [savedGames, setSavedGames] = useState(function () {
+    const storedGames = localStorage.getItem("saved_games");
+    return JSON.parse(storedGames);
+  });
+
   useEffect(() => {
     async function fetchGames() {
       try {
@@ -31,6 +37,13 @@ export default function App() {
     fetchGames();
   }, []);
 
+  useEffect(
+    function () {
+      localStorage.setItem("saved_games", JSON.stringify(savedGames));
+    },
+    [savedGames]
+  );
+
   function handleInput(val) {
     setQuery(val);
     console.log(`VAL: ${val}`);
@@ -44,12 +57,21 @@ export default function App() {
     setShowDetails(true);
   }
 
+  function handleSaveGame(id) {
+    setSavedGames((savedGames) => [...savedGames, id]);
+  }
+
   return (
     <>
-      <SearchBar onHandleInput={handleInput} />
+      <Header>
+        <SearchInput onHandleInput={handleInput} />
+        {/* <SavedGames /> */}
+      </Header>
+
       <GamesList
         gamesList={gamesList}
         onHandleShowDetails={handleShowDetails}
+        onHandleSaveGame={handleSaveGame}
       />
       {gameId && (
         <GameModal
@@ -60,26 +82,46 @@ export default function App() {
           setShowDetails={setShowDetails}
         />
       )}
+
+      <SavedGames savedGames={savedGames} />
     </>
   );
 }
 
 // Display the searchbar.
+// This also contains the favourites list of games dropdown list.
 
-function SearchBar({ onHandleInput }) {
+function Header({ children }) {
   return (
-    <header className="flex justify-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
-      <input
-        className="text-2xl bg-gray-500 text-gray-300 p-3 outline-none border-2 border-cyan-300 rounded-full placeholder:text-white"
-        type="text"
-        name="query"
-        id="query"
-        placeholder="Search query..."
-        onChange={(e) => {
-          onHandleInput(e.target.value);
-        }}
-      />
+    <header className="relative flex justify-around items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
+      {children}
     </header>
+  );
+}
+
+function SearchInput({ onHandleInput }) {
+  return (
+    <input
+      className="text-2xl bg-gray-500 text-gray-300 p-3 h-max outline-none border-2 border-cyan-300 rounded-full placeholder:text-white"
+      type="text"
+      name="query"
+      id="query"
+      placeholder="Search query..."
+      onChange={(e) => {
+        onHandleInput(e.target.value);
+      }}
+    />
+  );
+}
+
+function SavedGames({ savedGames }) {
+  console.log(savedGames);
+  return (
+    <ul className="relative text-2xl text-white z-50 bg-amber-800/70">
+      {savedGames?.map((game, index) => (
+        <li key={`savedGame-${index}`}>{game}</li>
+      ))}
+    </ul>
   );
 }
 
@@ -87,7 +129,7 @@ function SearchBar({ onHandleInput }) {
 // another component for the list items to reduce the amount of
 // propdrilling and number of components.
 
-function GamesList({ gamesList, onHandleShowDetails }) {
+function GamesList({ gamesList, onHandleShowDetails, onHandleSaveGame }) {
   return (
     <>
       <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
@@ -116,16 +158,23 @@ function GamesList({ gamesList, onHandleShowDetails }) {
                     : " No date."}
                 </span>
               </p>
-              <p className="text-xl text-sky-400">
-                <span className="font-bold">Game ID:</span> {games.id}
-              </p>
+              {games.deck ? (
+                <p className="text-xl text-sky-200">
+                  <span className="font-bold">Description:</span> {games.deck}
+                </p>
+              ) : (
+                <p className="text-xl text-sky-200">
+                  No Description available.
+                </p>
+              )}
+
               <a
-                className=" text-lg md:text-xl text-gray-300"
+                className=" text-lg md:text-2xl text-gray-300"
                 href={games.site_detail_url}
                 target="_blank"
                 rel="noreferrer"
               >
-                {games.site_detail_url}
+                See game details on Giant Bomb.
               </a>
 
               {/* Open and close modal button */}
@@ -135,7 +184,17 @@ function GamesList({ gamesList, onHandleShowDetails }) {
                   onHandleShowDetails(games.id);
                 }}
               >
-                <p>Details</p>
+                <p>📓 Details</p>
+              </button>
+
+              {/* Save to favourites button */}
+              <button
+                className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 transition-all"
+                onClick={() => {
+                  onHandleSaveGame(games.id);
+                }}
+              >
+                ⭐ Favourite
               </button>
             </li>
           </>
@@ -160,24 +219,28 @@ function GameModal({
   return (
     <>
       <dialog
-        className="flex flex-col justify-start items-center w-screen h-screen bg-slate-700/95 fixed overflow-y-scroll top-0 left-0"
+        className="flex flex-col justify-start items-center w-screen h-screen bg-gray-800/95 fixed overflow-y-scroll top-0 left-0"
         open={showDetails}
         onClose={() => setShowDetails(false)}
       >
-        <section className="grid grid-cols-1">
+        <section className="grid grid-cols-1 h-screen md:w-[70rem] relative">
           {gamesList?.map(
             (games) =>
               games.id === gameId && (
                 <>
                   <img src={games.image.screen_url} alt={games.name} />
-                  <h2 className="text-3xl font-bold text-slate-300 mt-3 ml-3">
-                    Deck Intro
-                  </h2>
-                  <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
-                    {games.deck}
-                  </p>
+
                   {games.description ? (
-                    <article className="flex flex-col bg-slate-800/40 p-4 text-xl text-slate-300 overflow-y-scroll overflow-x-hidden">
+                    <article className="flex flex-col bg-gray-700/40 p-4 text-xl text-slate-300 overflow-y-scroll overflow-x-auto">
+                      <h2 className="text-3xl font-bold text-amber-100 mt-3">
+                        {games.name}
+                      </h2>
+                      <h2 className="text-3xl font-bold text-amber-100 mt-3">
+                        Quick Introduction
+                      </h2>
+                      <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
+                        {games.deck}
+                      </p>
                       {Parser().parse(games.description)}
                     </article>
                   ) : (
@@ -186,7 +249,7 @@ function GameModal({
                     </p>
                   )}
                   <button
-                    className="bg-red-800 my-3 text-white text-2xl font-bold p-3 outline-none "
+                    className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
                     onClick={() => {
                       setShowDetails(false);
                       setGameId(null);
@@ -202,26 +265,3 @@ function GameModal({
     </>
   );
 }
-
-// function Games({ games, key }) {
-//   return (
-//     <div className="grid grid-cols-[8rem_50rem] grid-rows-2 my-4 gap-2">
-//       <li key={key}>
-//         <img
-//           className="row-span-3"
-//           // src={games.image.icon_url}
-//           alt="image for game."
-//         />
-//         <p className="text-4xl font-bold text-orange-800">
-//           {games.name ? games.name : "No Title"}
-//         </p>
-//         <p className="text-2xl">
-//           <span className="font-bold text-sky-800">Game ID:</span> {games.id}
-//         </p>
-//         <a href={games.site_detail_url} target="_blank" rel="noreferrer">
-//           {games.site_detail_url}
-//         </a>
-//       </li>
-//     </div>
-//   );
-// }
