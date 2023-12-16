@@ -10,12 +10,19 @@ body {
 }
 
 article a:link {
-  color: white;
+  /* color: white; */
+  text-decoration: underline;
 }
 article h2 {
   font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 0.6rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: bisque;
+  background: rgba(7, 78, 172, 0.4);
+  padding: 1rem;
+  border-top: solid 2px rgba(23, 113, 230, 0.4);
+  border-bottom: solid 1px rgba(0, 0, 0, 0.4);
 }
 article h3 {
   font-size: 1.5rem;
@@ -23,10 +30,36 @@ article h3 {
   margin-bottom: 0.6rem;
 }
 article p {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5em;
   font-size: 1.5rem;
 }
 article ul {
   list-style-type: square;
   margin-left: 1rem;
+  font-size: 1.4rem;
+}
+ul li {
+  margin: 0.2rem 0;
+}
+article table {
+  border: solid 1px rgba(0, 180, 180, 0.5);
+  width: max-content;
+  margin: 0.5rem 0;
+}
+article th {
+  font-size: 1.5rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(66, 66, 66, 0.4);
+}
+article table td {
+  border: solid 1px rgba(0, 180, 180, 0.5);
+  padding: 0.2rem 0.5rem;
+  font-size: 1.4rem;
+}
+article figure {
+  width: 40%;
+  margin: 0.5rem 0;
+}
+figcaption {
+  font-style: italic;
 }
