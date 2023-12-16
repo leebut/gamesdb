@@ -11,13 +11,13 @@ const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${s
 
 export default function App() {
   const [gamesList, setGamesList] = useState(["poo"]);
-  const [currGame, setCurrGame] = useState({});
+  // const [favGamesList, setFavGamesList] = useState([]);
   const [query, setQuery] = useState("");
   const [gameId, setGameId] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
   // const [savedGames, setSavedGames] = useState([]);
-  const [savedGames, setSavedGames] = useState(function () {
+  const [favGamesList, setFavGamesList] = useState(function () {
     const storedGames = localStorage.getItem("saved_games");
     return JSON.parse(storedGames);
   });
@@ -29,7 +29,7 @@ export default function App() {
         if (!res.ok) throw new Error("Could not fetch the games list.");
         const data = await res.json();
         if (!data) throw new Error("Nothing to show.");
-        console.log(data.results);
+        // console.log(data.results);
         setGamesList(data.results);
       } catch (err) {
         alert(err.message);
@@ -38,19 +38,20 @@ export default function App() {
     fetchGames();
   }, []);
 
+  // Save game to local storage.
   useEffect(
     function () {
-      localStorage.setItem("saved_games", JSON.stringify(savedGames));
+      localStorage.setItem("saved_games", JSON.stringify(favGamesList));
     },
-    [savedGames]
+    [favGamesList]
   );
 
   function handleInput(val) {
     setQuery(val);
-    console.log(`VAL: ${val}`);
-    () => {
-      console.log(`QUERY: ${query}`);
-    };
+    // console.log(`VAL: ${val}`);
+    // () => {
+    //   console.log(`QUERY: ${query}`);
+    // };
   }
 
   function handleShowDetails(id) {
@@ -58,28 +59,22 @@ export default function App() {
     setShowDetails(true);
   }
 
-  function handleAddCurrentGame(id, name, image) {
-    const gameObj = { gameId: id, gameName: name, gameImage: image };
-    setCurrGame(gameObj);
-  }
-
-  function handleAddSaveGame(game) {
-    setSavedGames((savedGames) => [...savedGames, game]);
+  function handleAddFav(id, name, icon) {
+    console.log(`ID; ${id} NAME: ${name} ICON: ${icon}`);
+    setFavGamesList((favGamesList) => [...favGamesList, { id, name, icon }]);
   }
 
   return (
     <>
       <Header>
         <SearchInput onHandleInput={handleInput} />
-        {/* <SavedGames /> */}
+        <FavouritesButton favGamesList={favGamesList} />
       </Header>
 
       <GamesList
         gamesList={gamesList}
         onHandleShowDetails={handleShowDetails}
-        onHandleAddCurrentGame={handleAddCurrentGame}
-        onHandleAddSaveGame={handleAddSaveGame}
-        currGame={currGame}
+        onHandleAddFav={handleAddFav}
       />
       {gameId && (
         <GameModal
@@ -91,7 +86,7 @@ export default function App() {
         />
       )}
 
-      <SavedGames savedGames={savedGames} />
+      <FavGames favGamesList={favGamesList} />
     </>
   );
 }
@@ -122,12 +117,32 @@ function SearchInput({ onHandleInput }) {
   );
 }
 
-function SavedGames({ savedGames }) {
-  console.log(savedGames);
+function FavouritesButton({ favGamesList }) {
   return (
-    <ul className="relative text-2xl text-white z-50 bg-amber-800/70">
-      {savedGames?.map((game, index) => (
-        <li key={`savedGame-${index}`}>{game}</li>
+    <button className="bg-gray-600 p-2 rounded-lg border-2 border-transparent hover:border-2 hover:border-white transition-all">
+      <span className="text-3xl">😍</span>{" "}
+      <span className="font-bold text-white">
+        <sup className="text-lg bg-red-800 rounded-full">
+          &nbsp;{favGamesList.length}&nbsp;
+        </sup>
+        Favourites
+      </span>
+    </button>
+  );
+}
+
+function FavGames({ favGamesList }) {
+  // console.log(favGamesList);
+  return (
+    <ul className="relative text-2xl text-gray-300 z-50 w-max pr-1">
+      {favGamesList?.map((game) => (
+        <li
+          key={game.id}
+          className="flex gap-1 bg-gray-800 pr-3 border-r-2 border-white/30"
+        >
+          <img className="w-12 h-12" src={game.icon} alt={game.name} />
+          &nbsp;{game.name}
+        </li>
       ))}
     </ul>
   );
@@ -137,31 +152,26 @@ function SavedGames({ savedGames }) {
 // another component for the list items to reduce the amount of
 // propdrilling and number of components.
 
-function GamesList({
-  gamesList,
-  onHandleShowDetails,
-  onHandleAddCurrentGame,
-  onHandleAddSaveGame,
-  currGame,
-}) {
-  const { gameId: gameId, gameName: gameName, gameIcon: gameIcon } = currGame;
+function GamesList({ gamesList, onHandleShowDetails, onHandleAddFav }) {
+  // const { gameId: id, gameName: name, gameIcon: icon } = currGame;
 
-  function handleAddGame() {
-    const newSaveGame = {
-      gameId,
-      gameName,
-      gameIcon,
-    };
+  // function handleAddGame(id, name, icon) {
+  //   const newSaveGame = {
+  //     id,
+  //     name,
+  //     icon,
+  //   };
 
-    // onHandleAddSaveGame(newSaveGame);
-  }
+  //   const newGameArray = [newSaveGame];
+  //   onHandleAddSaveGame(newGameArray);
+  // }
   return (
     <>
       <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
         {gamesList?.map((games) => (
           <>
             <li
-              key={games.id}
+              key={`savage${games.id}`}
               className="grid relative items-center grid-cols-[6rem_30rem] md:grid-cols-[9rem_40rem] grid-rows-auto gap-x-2 md:gap-3 bg-slate-800 p-2 h-max border-emerald-600 border-[1px]"
             >
               {games.image && (
@@ -216,13 +226,7 @@ function GamesList({
               <button
                 className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 transition-all"
                 onClick={() => {
-                  onHandleAddCurrentGame(
-                    games.id,
-                    games.name,
-                    games.image.icon_url
-                  );
-                  handleAddGame();
-                  // onHandleAddSaveGame(games.id);
+                  onHandleAddFav(games.id, games.name, games.image.icon_url);
                 }}
               >
                 ⭐ Favourite
