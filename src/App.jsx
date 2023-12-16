@@ -11,6 +11,7 @@ const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${s
 
 export default function App() {
   const [gamesList, setGamesList] = useState(["poo"]);
+  const [currGame, setCurrGame] = useState({});
   const [query, setQuery] = useState("");
   const [gameId, setGameId] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -57,8 +58,13 @@ export default function App() {
     setShowDetails(true);
   }
 
-  function handleSaveGame(id) {
-    setSavedGames((savedGames) => [...savedGames, id]);
+  function handleAddCurrentGame(id, name, image) {
+    const gameObj = { gameId: id, gameName: name, gameImage: image };
+    setCurrGame(gameObj);
+  }
+
+  function handleAddSaveGame(game) {
+    setSavedGames((savedGames) => [...savedGames, game]);
   }
 
   return (
@@ -71,7 +77,9 @@ export default function App() {
       <GamesList
         gamesList={gamesList}
         onHandleShowDetails={handleShowDetails}
-        onHandleSaveGame={handleSaveGame}
+        onHandleAddCurrentGame={handleAddCurrentGame}
+        onHandleAddSaveGame={handleAddSaveGame}
+        currGame={currGame}
       />
       {gameId && (
         <GameModal
@@ -129,7 +137,24 @@ function SavedGames({ savedGames }) {
 // another component for the list items to reduce the amount of
 // propdrilling and number of components.
 
-function GamesList({ gamesList, onHandleShowDetails, onHandleSaveGame }) {
+function GamesList({
+  gamesList,
+  onHandleShowDetails,
+  onHandleAddCurrentGame,
+  onHandleAddSaveGame,
+  currGame,
+}) {
+  const { gameId: gameId, gameName: gameName, gameIcon: gameIcon } = currGame;
+
+  function handleAddGame() {
+    const newSaveGame = {
+      gameId,
+      gameName,
+      gameIcon,
+    };
+
+    // onHandleAddSaveGame(newSaveGame);
+  }
   return (
     <>
       <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
@@ -191,7 +216,13 @@ function GamesList({ gamesList, onHandleShowDetails, onHandleSaveGame }) {
               <button
                 className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 transition-all"
                 onClick={() => {
-                  onHandleSaveGame(games.id);
+                  onHandleAddCurrentGame(
+                    games.id,
+                    games.name,
+                    games.image.icon_url
+                  );
+                  handleAddGame();
+                  // onHandleAddSaveGame(games.id);
                 }}
               >
                 ⭐ Favourite
