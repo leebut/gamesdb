@@ -17,6 +17,7 @@ export default function App() {
   const [showDetails, setShowDetails] = useState(false);
 
   // const [savedGames, setSavedGames] = useState([]);
+  const [showFavList, setShowFavList] = useState(false);
   const [favGamesList, setFavGamesList] = useState(function () {
     const storedGames = localStorage.getItem("saved_games");
     if (!storedGames) {
@@ -49,6 +50,13 @@ export default function App() {
     [favGamesList]
   );
 
+  // Listen for the favList button clicks and slide in/out the favourites list.
+  useEffect(() => {
+    showFavList
+      ? document.querySelector("#favourite-games").classList.add("slide-in")
+      : document.querySelector("#favourite-games").classList.remove("slide-in");
+  }, [showFavList]);
+
   function handleInput(val) {
     setQuery(val);
     // console.log(`VAL: ${val}`);
@@ -67,8 +75,8 @@ export default function App() {
   //   setFavGamesList((favGamesList) => [...favGamesList, { id, name, icon }]);
   // }
 
+  // Add and delete to and from addFavList Favourites list.
   function handleAddFav(fav) {
-    // console.log(`ID; ${id} NAME: ${name} ICON: ${icon}`);
     setFavGamesList((favGamesList) => [...favGamesList, fav]);
   }
   function handelDeleteFav(id) {
@@ -76,19 +84,29 @@ export default function App() {
       favGamesList.filter((game) => game.id !== id)
     );
   }
-
+  function handleShowFavList() {
+    setShowFavList((showFavList) => !showFavList);
+  }
   return (
     <>
       <Header>
         <SearchInput onHandleInput={handleInput} />
-        <FavouritesButton favGamesList={favGamesList} />
+        <FavouritesButton
+          favGamesList={favGamesList}
+          onHandleShowFavList={handleShowFavList}
+        />
       </Header>
 
       <GamesList
         gamesList={gamesList}
         onHandleShowDetails={handleShowDetails}
         onHandleAddFav={handleAddFav}
-      />
+      >
+        <FavGames
+          favGamesList={favGamesList}
+          onHandelDeleteFav={handelDeleteFav}
+        />
+      </GamesList>
       {gameId && (
         <GameModal
           gamesList={gamesList}
@@ -98,11 +116,6 @@ export default function App() {
           setShowDetails={setShowDetails}
         />
       )}
-
-      <FavGames
-        favGamesList={favGamesList}
-        onHandelDeleteFav={handelDeleteFav}
-      />
     </>
   );
 }
@@ -133,9 +146,12 @@ function SearchInput({ onHandleInput }) {
   );
 }
 
-function FavouritesButton({ favGamesList }) {
+function FavouritesButton({ favGamesList, onHandleShowFavList }) {
   return (
-    <button className="bg-gray-600 p-2 rounded-lg border-2 border-transparent hover:border-2 hover:border-white transition-all">
+    <button
+      className="bg-gray-600 p-2 rounded-lg border-2 border-transparent hover:border-2 hover:border-white transition-all"
+      onClick={onHandleShowFavList}
+    >
       <span className="text-3xl">😍</span>{" "}
       <span className="font-bold text-white">
         <sup className="text-lg bg-red-800 rounded-full">
@@ -150,7 +166,10 @@ function FavouritesButton({ favGamesList }) {
 function FavGames({ favGamesList, onHandelDeleteFav }) {
   // console.log(favGamesList);
   return (
-    <ul className="relative text-2xl text-gray-300 z-50 w-max pr-1">
+    <ul
+      id="favourite-games"
+      className="fixed top-30 left-0 text-2xl text-gray-300 z-50 w-max pr-1 bg-gray-900 slide-out"
+    >
       {favGamesList?.map((game) => (
         <li
           key={game.id}
@@ -169,7 +188,12 @@ function FavGames({ favGamesList, onHandelDeleteFav }) {
 // another component for the list items to reduce the amount of
 // propdrilling and number of components.
 
-function GamesList({ gamesList, onHandleShowDetails, onHandleAddFav }) {
+function GamesList({
+  gamesList,
+  onHandleShowDetails,
+  onHandleAddFav,
+  children,
+}) {
   function handleAddNewFav(id, name, icon) {
     const newFav = {
       id,
@@ -180,7 +204,8 @@ function GamesList({ gamesList, onHandleShowDetails, onHandleAddFav }) {
     onHandleAddFav(newFav);
   }
   return (
-    <>
+    <section className="relative">
+      {children}
       <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
         {gamesList?.map((games) => (
           <>
@@ -249,7 +274,7 @@ function GamesList({ gamesList, onHandleShowDetails, onHandleAddFav }) {
           </>
         ))}
       </ul>
-    </>
+    </section>
   );
 }
 
