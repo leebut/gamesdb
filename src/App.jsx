@@ -19,6 +19,9 @@ export default function App() {
   // const [savedGames, setSavedGames] = useState([]);
   const [favGamesList, setFavGamesList] = useState(function () {
     const storedGames = localStorage.getItem("saved_games");
+    if (!storedGames) {
+      return [];
+    }
     return JSON.parse(storedGames);
   });
 
