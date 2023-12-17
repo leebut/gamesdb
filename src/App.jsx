@@ -62,9 +62,19 @@ export default function App() {
     setShowDetails(true);
   }
 
-  function handleAddFav(id, name, icon) {
-    console.log(`ID; ${id} NAME: ${name} ICON: ${icon}`);
-    setFavGamesList((favGamesList) => [...favGamesList, { id, name, icon }]);
+  // function handleAddFav(id, name, icon) {
+  //   console.log(`ID; ${id} NAME: ${name} ICON: ${icon}`);
+  //   setFavGamesList((favGamesList) => [...favGamesList, { id, name, icon }]);
+  // }
+
+  function handleAddFav(fav) {
+    // console.log(`ID; ${id} NAME: ${name} ICON: ${icon}`);
+    setFavGamesList((favGamesList) => [...favGamesList, fav]);
+  }
+  function handelDeleteFav(id) {
+    setFavGamesList((favGamesList) =>
+      favGamesList.filter((game) => game.id !== id)
+    );
   }
 
   return (
@@ -89,7 +99,10 @@ export default function App() {
         />
       )}
 
-      <FavGames favGamesList={favGamesList} />
+      <FavGames
+        favGamesList={favGamesList}
+        onHandelDeleteFav={handelDeleteFav}
+      />
     </>
   );
 }
@@ -134,17 +147,18 @@ function FavouritesButton({ favGamesList }) {
   );
 }
 
-function FavGames({ favGamesList }) {
+function FavGames({ favGamesList, onHandelDeleteFav }) {
   // console.log(favGamesList);
   return (
     <ul className="relative text-2xl text-gray-300 z-50 w-max pr-1">
       {favGamesList?.map((game) => (
         <li
           key={game.id}
-          className="flex gap-1 bg-gray-800 pr-3 border-r-2 border-white/30"
+          className="grid grid-cols-[3rem_20rem_3rem] gap-1 gap-x-2 items-center bg-gray-800 pr-3 border-r-2 border-white/30 hover:bg-gray-700 transition-all"
         >
           <img className="w-12 h-12" src={game.icon} alt={game.name} />
-          &nbsp;{game.name}
+          &nbsp;{game.name} &nbsp;{" "}
+          <button onClick={() => onHandelDeleteFav(game.id)}>🗑️</button>
         </li>
       ))}
     </ul>
@@ -156,18 +170,15 @@ function FavGames({ favGamesList }) {
 // propdrilling and number of components.
 
 function GamesList({ gamesList, onHandleShowDetails, onHandleAddFav }) {
-  // const { gameId: id, gameName: name, gameIcon: icon } = currGame;
+  function handleAddNewFav(id, name, icon) {
+    const newFav = {
+      id,
+      name,
+      icon,
+    };
 
-  // function handleAddGame(id, name, icon) {
-  //   const newSaveGame = {
-  //     id,
-  //     name,
-  //     icon,
-  //   };
-
-  //   const newGameArray = [newSaveGame];
-  //   onHandleAddSaveGame(newGameArray);
-  // }
+    onHandleAddFav(newFav);
+  }
   return (
     <>
       <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
@@ -229,7 +240,7 @@ function GamesList({ gamesList, onHandleShowDetails, onHandleAddFav }) {
               <button
                 className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 transition-all"
                 onClick={() => {
-                  onHandleAddFav(games.id, games.name, games.image.icon_url);
+                  handleAddNewFav(games.id, games.name, games.image.icon_url);
                 }}
               >
                 ⭐ Favourite
