@@ -11,7 +11,8 @@ const baseUrl = `https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&
 
 export default function App() {
   const [gamesList, setGamesList] = useState([]);
-  const [query, setQuery] = useState(null);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
   const [gameId, setGameId] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showFavList, setShowFavList] = useState(false);
@@ -28,6 +29,11 @@ export default function App() {
 
   // Fetch the games list.
   useEffect(() => {
+    if (!query) {
+      setError("Nothing has been entered to search for.");
+      return;
+    }
+    setError("");
     const timerId = setTimeout(() => {
       async function fetchGames() {
         try {
@@ -98,6 +104,8 @@ export default function App() {
         />
       </Header>
 
+      {error && <ErrorMessage error={error} />}
+
       <GamesList
         gamesList={gamesList}
         query={query}
@@ -109,6 +117,7 @@ export default function App() {
           onHandelDeleteFav={handelDeleteFav}
         />
       </GamesList>
+
       {gameId && (
         <GameModal
           gamesList={gamesList}
@@ -203,7 +212,6 @@ function GamesList({
       name,
       icon,
     };
-
     onHandleAddFav(newFav);
   }
   return (
@@ -290,6 +298,14 @@ function GamesList({
         </ul>
       )}
     </section>
+  );
+}
+
+function ErrorMessage({ error }) {
+  return (
+    <>
+      <h2 className="text-4xl bg-red-300 font-bold">{error}</h2>
+    </>
   );
 }
 
