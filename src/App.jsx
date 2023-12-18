@@ -4,19 +4,16 @@ import "./App.css";
 
 const apiKey = import.meta.env.VITE_API_KEY;
 const searchTerm = "search";
-const query = "alan wake";
+// const query = "alan wake";
 const resources = "game";
 const baseUrl = `https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json`;
-const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
+// const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
 
 export default function App() {
-  const [gamesList, setGamesList] = useState(["poo"]);
-  // const [favGamesList, setFavGamesList] = useState([]);
-  const [query, setQuery] = useState("");
+  const [gamesList, setGamesList] = useState([]);
+  const [query, setQuery] = useState(null);
   const [gameId, setGameId] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
-
-  // const [savedGames, setSavedGames] = useState([]);
   const [showFavList, setShowFavList] = useState(false);
   const [favGamesList, setFavGamesList] = useState(function () {
     const storedGames = localStorage.getItem("saved_games");
@@ -26,21 +23,30 @@ export default function App() {
     return JSON.parse(storedGames);
   });
 
+  // URL to fetch the games list based on the query state.
+  const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
+
+  // Fetch the games list.
   useEffect(() => {
-    async function fetchGames() {
-      try {
-        const res = await fetch(searchResources);
-        if (!res.ok) throw new Error("Could not fetch the games list.");
-        const data = await res.json();
-        if (!data) throw new Error("Nothing to show.");
-        // console.log(data.results);
-        setGamesList(data.results);
-      } catch (err) {
-        alert(err.message);
+    const timerId = setTimeout(() => {
+      async function fetchGames() {
+        try {
+          // const res = await fetch(searchResources);
+          const res = await fetch(searchUrl);
+
+          if (!res.ok) throw new Error("Could not fetch the games list.");
+          const data = await res.json();
+          if (!data) throw new Error("Nothing to show.");
+          // console.log(data.results);
+          setGamesList(data.results);
+        } catch (err) {
+          alert(err.message);
+        }
       }
-    }
-    fetchGames();
-  }, []);
+      fetchGames();
+    }, 1000);
+    return () => clearTimeout(timerId);
+  }, [query]);
 
   // Save game to local storage.
   useEffect(
@@ -57,7 +63,7 @@ export default function App() {
       : document.querySelector("#favourite-games").classList.remove("slide-in");
   }, [showFavList]);
 
-  function handleInput(val) {
+  function handleQueryInput(val) {
     setQuery(val);
     // console.log(`VAL: ${val}`);
     // () => {
@@ -70,12 +76,7 @@ export default function App() {
     setShowDetails(true);
   }
 
-  // function handleAddFav(id, name, icon) {
-  //   console.log(`ID; ${id} NAME: ${name} ICON: ${icon}`);
-  //   setFavGamesList((favGamesList) => [...favGamesList, { id, name, icon }]);
-  // }
-
-  // Add and delete to and from addFavList Favourites list.
+  // Add and delete to and from addFavList, and slide the favourites list.
   function handleAddFav(fav) {
     setFavGamesList((favGamesList) => [...favGamesList, fav]);
   }
@@ -90,7 +91,7 @@ export default function App() {
   return (
     <>
       <Header>
-        <SearchInput onHandleInput={handleInput} />
+        <SearchInput onHandleQueryInput={handleQueryInput} />
         <FavouritesButton
           favGamesList={favGamesList}
           onHandleShowFavList={handleShowFavList}
@@ -99,6 +100,7 @@ export default function App() {
 
       <GamesList
         gamesList={gamesList}
+        query={query}
         onHandleShowDetails={handleShowDetails}
         onHandleAddFav={handleAddFav}
       >
@@ -131,7 +133,7 @@ function Header({ children }) {
   );
 }
 
-function SearchInput({ onHandleInput }) {
+function SearchInput({ onHandleQueryInput }) {
   return (
     <input
       className="text-2xl bg-gray-500 text-gray-300 p-3 h-max outline-none border-2 border-cyan-300 rounded-full placeholder:text-white"
@@ -140,7 +142,7 @@ function SearchInput({ onHandleInput }) {
       id="query"
       placeholder="Search query..."
       onChange={(e) => {
-        onHandleInput(e.target.value);
+        onHandleQueryInput(e.target.value);
       }}
     />
   );
@@ -190,6 +192,7 @@ function FavGames({ favGamesList, onHandelDeleteFav }) {
 
 function GamesList({
   gamesList,
+  query,
   onHandleShowDetails,
   onHandleAddFav,
   children,
@@ -206,74 +209,86 @@ function GamesList({
   return (
     <section className="relative">
       {children}
-      <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
-        {gamesList?.map((games) => (
-          <>
-            <li
-              key={`savage${games.id}`}
-              className="grid relative items-center grid-cols-[6rem_30rem] md:grid-cols-[9rem_40rem] grid-rows-auto gap-x-2 md:gap-3 bg-slate-800 p-2 h-max border-emerald-600 border-[1px]"
-            >
-              {games.image && (
-                <img
-                  className="row-span-3 w-full place-self-start md:items-center"
-                  src={games.image.icon_url}
-                  alt="image for game."
-                />
-              )}
+      {gamesList.length === 0 && (
+        <h2 className="text-white text-2xl">
+          No games found matching &apos;{query}&apos; .
+        </h2>
+      )}
+      {!query ? (
+        <h2 className="text-white text-2xl">Enter a game name to search.</h2>
+      ) : (
+        <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
+          {gamesList?.map((games) => (
+            <>
+              <li
+                key={`savage${games.id}`}
+                className="grid relative items-center grid-cols-[6rem_30rem] md:grid-cols-[9rem_40rem] grid-rows-auto gap-x-2 md:gap-3 bg-slate-800 p-2 h-max border-emerald-600 border-[1px]"
+              >
+                {games.image && (
+                  <img
+                    className="row-span-3 w-full place-self-start md:items-center"
+                    src={games.image.icon_url}
+                    alt="image for game."
+                  />
+                )}
 
-              <p className="text-3xl md:text-4xl font-bold text-orange-300">
-                {games.name ? games.name : "No Title"}
-                <br />
-                <span className="text-xl text-yellow-300">
-                  {" "}
-                  Release{`(`}d{`)`}:{" "}
-                  {games.original_release_date
-                    ? games.original_release_date
-                    : " No date."}
-                </span>
-              </p>
-              {games.deck ? (
-                <p className="text-xl text-sky-200">
-                  <span className="font-bold">Description:</span> {games.deck}
+                <p className="text-3xl md:text-4xl font-bold text-orange-300">
+                  {games.name ? games.name : "No Title"}
+                  <br />
+                  <span className="text-xl text-yellow-300">
+                    {" "}
+                    Release{`(`}d{`)`}:{" "}
+                    {games.original_release_date
+                      ? games.original_release_date
+                      : " No date."}
+                  </span>
                 </p>
-              ) : (
-                <p className="text-xl text-sky-200">
-                  No Description available.
-                </p>
-              )}
+                {games.deck ? (
+                  <p className="text-xl text-sky-200">
+                    <span className="font-bold">Description:</span>{" "}
+                    {games.deck.length > 150
+                      ? games.deck.slice(0, 150) + "..."
+                      : games.deck}
+                  </p>
+                ) : (
+                  <p className="text-xl text-sky-200">
+                    No Description available.
+                  </p>
+                )}
 
-              <a
-                className=" text-lg md:text-2xl text-gray-300"
-                href={games.site_detail_url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                See game details on Giant Bomb.
-              </a>
+                <a
+                  className=" text-lg md:text-2xl text-gray-300"
+                  href={games.site_detail_url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  See game details on Giant Bomb.
+                </a>
 
-              {/* Open and close modal button */}
-              <button
-                className="absolute flex justify-center items-center text-white font-bold  bg-pink-800/50 w-20 h-10 right-0 top-0 cursor-pointer hover:bg-pink-600 transition-all"
-                onClick={() => {
-                  onHandleShowDetails(games.id);
-                }}
-              >
-                <p>📓 Details</p>
-              </button>
+                {/* Open and close modal button */}
+                <button
+                  className="absolute flex justify-center items-center text-white font-bold  bg-pink-800/50 w-20 h-10 right-0 top-0 cursor-pointer hover:bg-pink-600 transition-all"
+                  onClick={() => {
+                    onHandleShowDetails(games.id);
+                  }}
+                >
+                  <p>📓 Details</p>
+                </button>
 
-              {/* Save to favourites button */}
-              <button
-                className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 transition-all"
-                onClick={() => {
-                  handleAddNewFav(games.id, games.name, games.image.icon_url);
-                }}
-              >
-                ⭐ Favourite
-              </button>
-            </li>
-          </>
-        ))}
-      </ul>
+                {/* Save to favourites button */}
+                <button
+                  className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 transition-all"
+                  onClick={() => {
+                    handleAddNewFav(games.id, games.name, games.image.icon_url);
+                  }}
+                >
+                  ⭐ Favourite
+                </button>
+              </li>
+            </>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
