@@ -4,13 +4,14 @@ import "./App.css";
 
 const apiKey = import.meta.env.VITE_API_KEY;
 const searchTerm = "search";
-// const query = "alan wake";
 const resources = "game";
 const baseUrl = `https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json`;
 // const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
 
 export default function App() {
   const [gamesList, setGamesList] = useState([]);
+  const [numItems, setNumItems] = useState("");
+  const [page, setPage] = useState(1);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [gameId, setGameId] = useState(null);
@@ -25,7 +26,7 @@ export default function App() {
   });
 
   // URL to fetch the games list based on the query state.
-  const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
+  const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}&page=${page}`;
 
   // Fetch the games list.
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function App() {
           if (!data) throw new Error("Nothing to show.");
           // console.log(data.results);
           setGamesList(data.results);
+          setNumItems(data.number_of_total_results);
         } catch (err) {
           alert(err.message);
         }
@@ -52,7 +54,7 @@ export default function App() {
       fetchGames();
     }, 1000);
     return () => clearTimeout(timerId);
-  }, [query]);
+  }, [query, page, searchUrl]);
 
   // Save game to local storage.
   useEffect(
@@ -111,10 +113,17 @@ export default function App() {
         query={query}
         onHandleShowDetails={handleShowDetails}
         onHandleAddFav={handleAddFav}
+        setPage={setPage}
       >
         <FavGames
           favGamesList={favGamesList}
           onHandelDeleteFav={handelDeleteFav}
+        />
+        <PageCount
+          numItems={numItems}
+          page={page}
+          setPage={setPage}
+          query={query}
         />
       </GamesList>
 
@@ -205,6 +214,7 @@ function GamesList({
   onHandleShowDetails,
   onHandleAddFav,
   children,
+  setPage,
 }) {
   function handleAddNewFav(id, name, icon) {
     const newFav = {
@@ -265,7 +275,7 @@ function GamesList({
                 )}
 
                 <a
-                  className=" text-lg md:text-2xl text-gray-300"
+                  className=" text-lg md:text-2xl text-gray-300 font-bold"
                   href={games.site_detail_url}
                   target="_blank"
                   rel="noreferrer"
@@ -301,6 +311,37 @@ function GamesList({
   );
 }
 
+function PageCount({ numItems, page, setPage, query }) {
+  const totalGames = numItems;
+  const numPages = Math.round(numItems / 10);
+
+  return (
+    <>
+      <p>
+        {totalGames} found containing the word(s) {query}.
+      </p>
+      <ul className="flex flex-wrap">
+        {Array.from({ length: numPages }, (_, i) => i + 1).map((eachPage) => (
+          // <p key={page.i}>page: {page}</p>
+          <li key={eachPage.i}>
+            <button
+              className={
+                eachPage == page
+                  ? "text-2xl text-gray-300 bg-cyan-700 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
+                  : "text-2xl text-gray-300 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
+              }
+              value={eachPage}
+              onClick={(e) => setPage(e.target.value)}
+            >
+              {eachPage}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
 function ErrorMessage({ error }) {
   return (
     <>
@@ -321,6 +362,22 @@ function GameModal({
   showDetails,
   setShowDetails,
 }) {
+  // Prepare for amending the URLs in the HTML API response.
+
+  function addURL(str) {
+    const url = "https//www.giantbomb.com";
+    const regex = /<a href="([^/]*)/g;
+    let match;
+    while ((match = regex.exec(str)) !== null) {
+      if (match[1].startsWith(!url)) {
+        str = str.replace(match[1], url + match[1]);
+        console.log(match[1]);
+      }
+    }
+
+    return str;
+  }
+
   return (
     <>
       <dialog
@@ -346,7 +403,8 @@ function GameModal({
                       <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
                         {games.deck}
                       </p>
-                      {Parser().parse(games.description)}
+                      {/* {Parser().parse(games.description)} */}
+                      {Parser().parse(addURL(games.description))}
                     </article>
                   ) : (
                     <p className="text-slate-300 text-2xl font-bold">
