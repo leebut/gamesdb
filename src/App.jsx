@@ -5,7 +5,7 @@ import "./App.css";
 const apiKey = import.meta.env.VITE_API_KEY;
 const searchTerm = "search";
 const resources = "game";
-const baseUrl = `https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json`;
+// const baseUrl = `https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json`;
 // const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
 
 export default function App() {
@@ -317,9 +317,11 @@ function PageCount({ numItems, page, setPage, query }) {
 
   return (
     <>
-      <p>
-        {totalGames} found containing the word(s) {query}.
-      </p>
+      {numItems && (
+        <p className="text-2xl text-gray-300 font-bold">
+          {totalGames} games found containing the word(s) {query}.
+        </p>
+      )}
       <ul className="flex flex-wrap">
         {Array.from({ length: numPages }, (_, i) => i + 1).map((eachPage) => (
           // <p key={page.i}>page: {page}</p>
@@ -385,16 +387,20 @@ function GameModal({
         open={showDetails}
         onClose={() => setShowDetails(false)}
       >
-        <section className="grid grid-cols-1 h-screen md:w-[70rem] relative">
+        <section className="grid grid-cols-1 mt-4 h-screen md:w-[70rem] relative">
           {gamesList?.map(
             (games) =>
               games.id === gameId && (
                 <>
-                  <img src={games.image.screen_url} alt={games.name} />
+                  <img
+                    className="w-80"
+                    src={games.image.medium_url}
+                    alt={games.name}
+                  />
 
                   {games.description ? (
                     <article className="flex flex-col bg-gray-700/40 p-4 text-xl text-slate-300 overflow-y-scroll overflow-x-auto">
-                      <h2 className="text-3xl font-bold text-amber-100 mt-3">
+                      <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-200">
                         {games.name}
                       </h2>
                       <h2 className="text-3xl font-bold text-amber-100 mt-3">
