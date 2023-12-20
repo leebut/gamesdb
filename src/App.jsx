@@ -12,7 +12,9 @@ export default function App() {
   const [gamesList, setGamesList] = useState([]);
   const [numItems, setNumItems] = useState("");
   const [page, setPage] = useState(1);
+  const [isPageClicked, setIsPageClicked] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [gameId, setGameId] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -38,6 +40,7 @@ export default function App() {
     const timerId = setTimeout(() => {
       async function fetchGames() {
         try {
+          setIsLoading(true);
           // const res = await fetch(searchResources);
           const res = await fetch(searchUrl);
 
@@ -47,8 +50,12 @@ export default function App() {
           // console.log(data.results);
           setGamesList(data.results);
           setNumItems(data.number_of_total_results);
+          isPageClicked ? setPage((page) => page) : setPage("1");
         } catch (err) {
           alert(err.message);
+        } finally {
+          setIsPageClicked(false);
+          setIsLoading(false);
         }
       }
       fetchGames();
@@ -108,24 +115,29 @@ export default function App() {
 
       {error && <ErrorMessage error={error} />}
 
-      <GamesList
-        gamesList={gamesList}
-        query={query}
-        onHandleShowDetails={handleShowDetails}
-        onHandleAddFav={handleAddFav}
-        setPage={setPage}
-      >
-        <FavGames
-          favGamesList={favGamesList}
-          onHandelDeleteFav={handelDeleteFav}
-        />
-        <PageCount
-          numItems={numItems}
-          page={page}
-          setPage={setPage}
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <GamesList
+          gamesList={gamesList}
           query={query}
-        />
-      </GamesList>
+          onHandleShowDetails={handleShowDetails}
+          onHandleAddFav={handleAddFav}
+          setPage={setPage}
+        >
+          <FavGames
+            favGamesList={favGamesList}
+            onHandelDeleteFav={handelDeleteFav}
+          />
+          <PageCount
+            numItems={numItems}
+            page={page}
+            setPage={setPage}
+            query={query}
+            setIsPageClicked={setIsPageClicked}
+          />
+        </GamesList>
+      )}
 
       {gameId && (
         <GameModal
@@ -239,7 +251,7 @@ function GamesList({
           {gamesList?.map((games) => (
             <>
               <li
-                key={`savage${games.id}`}
+                key={games.id}
                 className="grid relative items-center grid-cols-[6rem_30rem] md:grid-cols-[9rem_40rem] grid-rows-auto gap-x-2 md:gap-3 bg-slate-800 p-2 h-max border-emerald-600 border-[1px]"
               >
                 {games.image && (
@@ -311,7 +323,7 @@ function GamesList({
   );
 }
 
-function PageCount({ numItems, page, setPage, query }) {
+function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
   const totalGames = numItems;
   const numPages = Math.ceil(numItems / 10);
 
@@ -323,25 +335,34 @@ function PageCount({ numItems, page, setPage, query }) {
         </p>
       )}
       <ul className="flex flex-wrap">
-        {Array.from({ length: numPages }, (_, i) => i + 1).map((eachPage) => (
-          // <p key={page.i}>page: {page}</p>
-          <li key={eachPage.i}>
-            <button
-              className={
-                eachPage == page
-                  ? "text-2xl text-gray-300 bg-cyan-700 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
-                  : "text-2xl text-gray-300 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
-              }
-              value={eachPage}
-              onClick={(e) => setPage(e.target.value)}
-            >
-              {eachPage}
-            </button>
-          </li>
-        ))}
+        {Array.from({ length: numPages }, (_, i) => i + 1).map(
+          (eachPage, i) => (
+            // <p key={page.i}>page: {page}</p>
+            <li key={i}>
+              <button
+                className={
+                  eachPage == page
+                    ? "text-2xl text-gray-300 bg-cyan-700 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
+                    : "text-2xl text-gray-300 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
+                }
+                value={eachPage}
+                onClick={(e) => {
+                  setPage(e.target.value);
+                  setIsPageClicked(true);
+                }}
+              >
+                {eachPage}
+              </button>
+            </li>
+          )
+        )}
       </ul>
     </>
   );
+}
+
+function Loader() {
+  return <h2 className="text-4xl text-white">Loading the games list....</h2>;
 }
 
 function ErrorMessage({ error }) {
@@ -369,7 +390,7 @@ function GameModal({
   function addURL(str) {
     const url = "https://www.giantbomb.com";
     // const regex = /"([^/]*)/g;
-    const regex = /<a href="\//g;
+    const regex = /href="\//g;
     str = str.replace(regex, `<a target="_blank" href="${url}/`);
     return str;
   }
@@ -401,13 +422,12 @@ function GameModal({
                       alt={games.name}
                     />
                   )}
-                  {console.log(games.deck)}
                   {games.description ? (
                     <article
                       className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
                       style={{ width: "100%" }}
                     >
-                      {console.log(games.description)}
+                      {/* {console.log(games.description)} */}
                       <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-500">
                         {games.name}
                       </h2>
