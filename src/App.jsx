@@ -313,7 +313,7 @@ function GamesList({
 
 function PageCount({ numItems, page, setPage, query }) {
   const totalGames = numItems;
-  const numPages = Math.round(numItems / 10);
+  const numPages = Math.ceil(numItems / 10);
 
   return (
     <>
@@ -367,16 +367,10 @@ function GameModal({
   // Prepare for amending the URLs in the HTML API response.
 
   function addURL(str) {
-    const url = "https//www.giantbomb.com";
-    const regex = /<a href="([^/]*)/g;
-    let match;
-    while ((match = regex.exec(str)) !== null) {
-      if (match[1].startsWith(!url)) {
-        str = str.replace(match[1], url + match[1]);
-        console.log(match[1]);
-      }
-    }
-
+    const url = "https://www.giantbomb.com";
+    // const regex = /"([^/]*)/g;
+    const regex = /<a href="\//g;
+    str = str.replace(regex, `<a target="_blank" href="${url}/`);
     return str;
   }
 
@@ -392,23 +386,39 @@ function GameModal({
             (games) =>
               games.id === gameId && (
                 <>
-                  <img
-                    className="w-80"
-                    src={games.image.medium_url}
-                    alt={games.name}
-                  />
-
+                  {/* BG IMAGE */}
+                  {/* <img
+                    key={games.id}
+                    src={games.image.original_url}
+                    alt="games.name"
+                    className="absolute opacity opacity-20"
+                    style={{ backgroundSize: "cover", position: "absolute" }}
+                  /> */}
+                  {games.image.original_url && (
+                    <img
+                      className="w-1/4"
+                      src={games.image.original_url}
+                      alt={games.name}
+                    />
+                  )}
+                  {console.log(games.deck)}
                   {games.description ? (
-                    <article className="flex flex-col bg-gray-700/40 p-4 text-xl text-slate-300 overflow-y-scroll overflow-x-auto">
-                      <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-200">
+                    <article
+                      className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
+                      style={{ width: "100%" }}
+                    >
+                      {console.log(games.description)}
+                      <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-500">
                         {games.name}
                       </h2>
                       <h2 className="text-3xl font-bold text-amber-100 mt-3">
                         Quick Introduction
                       </h2>
-                      <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
-                        {games.deck}
-                      </p>
+                      {games.deck && (
+                        <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
+                          {games.deck}
+                        </p>
+                      )}
                       {/* {Parser().parse(games.description)} */}
                       {Parser().parse(addURL(games.description))}
                     </article>
