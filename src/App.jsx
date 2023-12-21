@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Parser } from "html-to-react";
 import "./App.css";
 
@@ -30,16 +30,28 @@ export default function App() {
   // URL to fetch the games list based on the query state.
   const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}&page=${page}`;
 
+  // Reset Everything when no search query
+  useEffect(() => {
+    if (!query) {
+      setError("Search for a game.");
+      setGamesList([]);
+      setNumItems("");
+      setPage(1);
+      return;
+    }
+  }, [query, setNumItems, setGamesList, setError, setPage]);
+
   // Fetch the games list.
   useEffect(() => {
     if (!query) {
-      setError("Nothing has been entered to search for.");
+      setError("Search for a game.");
       return;
     }
-    setError("");
+
     const timerId = setTimeout(() => {
       async function fetchGames() {
         try {
+          setError("");
           setIsLoading(true);
           // const res = await fetch(searchResources);
           const res = await fetch(searchUrl);
@@ -53,15 +65,15 @@ export default function App() {
           isPageClicked ? setPage((page) => page) : setPage("1");
         } catch (err) {
           alert(err.message);
+          setError(err.message);
         } finally {
-          setIsPageClicked(false);
           setIsLoading(false);
         }
       }
       fetchGames();
     }, 1000);
     return () => clearTimeout(timerId);
-  }, [query, page, searchUrl]);
+  }, [query, page, searchUrl, setGamesList, setError, isPageClicked]);
 
   // Save game to local storage.
   useEffect(
@@ -123,7 +135,7 @@ export default function App() {
           query={query}
           onHandleShowDetails={handleShowDetails}
           onHandleAddFav={handleAddFav}
-          setPage={setPage}
+          setError={setError}
         >
           <FavGames
             favGamesList={favGamesList}
@@ -164,13 +176,21 @@ function Header({ children }) {
 }
 
 function SearchInput({ onHandleQueryInput }) {
+  const searchInput = useRef(null);
+
+  // Auto focus the search input
+  useEffect(function () {
+    searchInput.current.focus();
+  }, []);
+
   return (
     <input
-      className="text-2xl bg-gray-500 text-gray-300 p-3 h-max outline-none border-2 border-cyan-300 rounded-full placeholder:text-white"
+      className="text-2xl bg-gray-500 text-gray-300 p-3 h-max outline-none border-2 border-cyan-300 rounded-full placeholder:text-white focus:bg-sky-600 focus:text-white transition-all"
       type="text"
       name="query"
       id="query"
       placeholder="Search query..."
+      ref={searchInput}
       onChange={(e) => {
         onHandleQueryInput(e.target.value);
       }}
@@ -226,7 +246,7 @@ function GamesList({
   onHandleShowDetails,
   onHandleAddFav,
   children,
-  setPage,
+  setError,
 }) {
   function handleAddNewFav(id, name, icon) {
     const newFav = {
@@ -237,32 +257,35 @@ function GamesList({
     onHandleAddFav(newFav);
   }
   return (
-    <section className="relative">
+    <section className="relative flex flex-col items-center">
       {children}
-      {gamesList.length === 0 && (
-        <h2 className="text-white text-2xl">
-          No games found matching &apos;{query}&apos; .
-        </h2>
-      )}
+      {gamesList.length === 0 &&
+        // <h2 className="text-white text-2xl">
+        //   No games found matching &apos;{query}&apos; .
+        // </h2>
+        setError(`No games found matching ${query}.`)}
+
+      {gamesList.length === 0 && !query && setError("Search for a game.")}
       {!query ? (
         <h2 className="text-white text-2xl">Enter a game name to search.</h2>
       ) : (
-        <ul className="grid grid-cols-1 gap-3 w-screen md:m-10 md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] justify-items-center">
+        <ul className="grid grid-cols-1 gap-3 sm:gap-4 mt-5 w-11/12 sm:w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(50rem,51rem))] justify-center">
+          {/* md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] */}
           {gamesList?.map((games) => (
             <>
               <li
                 key={games.id}
-                className="grid relative items-center grid-cols-[6rem_30rem] md:grid-cols-[9rem_40rem] grid-rows-auto gap-x-2 md:gap-3 bg-slate-800 p-2 h-max border-emerald-600 border-[1px]"
+                className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_40rem] grid-rows-auto gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 h-max border-emerald-600 border-[1px]"
               >
                 {games.image && (
                   <img
-                    className="row-span-3 w-full place-self-start md:items-center"
+                    className="row-span-3 w-full place-self-start sm:items-center"
                     src={games.image.icon_url}
                     alt="image for game."
                   />
                 )}
 
-                <p className="text-3xl md:text-4xl font-bold text-orange-300">
+                <p className="text-3xl sm:text-4xl font-bold text-cyan-200">
                   {games.name ? games.name : "No Title"}
                   <br />
                   <span className="text-xl text-yellow-300">
@@ -275,19 +298,17 @@ function GamesList({
                 </p>
                 {games.deck ? (
                   <p className="text-xl text-sky-200">
-                    <span className="font-bold">Description:</span>{" "}
+                    <span className="font-bold">Synopsis:</span>{" "}
                     {games.deck.length > 150
                       ? games.deck.slice(0, 150) + "..."
                       : games.deck}
                   </p>
                 ) : (
-                  <p className="text-xl text-sky-200">
-                    No Description available.
-                  </p>
+                  <p className="text-xl text-sky-200">No synopsis available.</p>
                 )}
 
                 <a
-                  className=" text-lg md:text-2xl text-gray-300 font-bold"
+                  className=" text-lg sm:text-2xl text-gray-300 font-bold"
                   href={games.site_detail_url}
                   target="_blank"
                   rel="noreferrer"
@@ -296,23 +317,25 @@ function GamesList({
                 </a>
 
                 {/* Open and close modal button */}
-                <button
-                  className="absolute flex justify-center items-center text-white font-bold  bg-pink-800/50 w-20 h-10 right-0 top-0 cursor-pointer hover:bg-pink-600 transition-all"
-                  onClick={() => {
-                    onHandleShowDetails(games.id);
-                  }}
-                >
-                  <p>📓 Details</p>
-                </button>
+                {games.description && (
+                  <button
+                    className="absolute flex justify-center items-center text-white font-bold  bg-pink-600/70 h-10 px-2 right-0 top-0 cursor-pointer border-l-[1px] border-b-[1px] border-pink-400 hover:bg-pink-600 transition-all"
+                    onClick={() => {
+                      onHandleShowDetails(games.id);
+                    }}
+                  >
+                    <p>📔 Notes</p>
+                  </button>
+                )}
 
                 {/* Save to favourites button */}
                 <button
-                  className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 transition-all"
+                  className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 px-2 border-green-400 border-t-[1px] border-l-[1px] transition-all"
                   onClick={() => {
                     handleAddNewFav(games.id, games.name, games.image.icon_url);
                   }}
                 >
-                  ⭐ Favourite
+                  💖 Favourite
                 </button>
               </li>
             </>
@@ -402,7 +425,7 @@ function GameModal({
         open={showDetails}
         onClose={() => setShowDetails(false)}
       >
-        <section className="grid grid-cols-1 mt-4 h-screen md:w-[70rem] relative">
+        <section className="grid grid-cols-1 mt-4 h-screen sm:w-[70rem] relative">
           {gamesList?.map(
             (games) =>
               games.id === gameId && (
