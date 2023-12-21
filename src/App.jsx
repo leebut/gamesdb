@@ -256,16 +256,14 @@ function GamesList({
     };
     onHandleAddFav(newFav);
   }
+
   return (
     <section className="relative flex flex-col items-center">
       {children}
-      {gamesList.length === 0 &&
-        // <h2 className="text-white text-2xl">
-        //   No games found matching &apos;{query}&apos; .
-        // </h2>
-        setError(`No games found matching ${query}.`)}
 
-      {gamesList.length === 0 && !query && setError("Search for a game.")}
+      {gamesList.length === 0 && !query && (
+        <h2 className="text-white text-2xl">No games found matching {query}</h2>
+      )}
       {!query ? (
         <h2 className="text-white text-2xl">Enter a game name to search.</h2>
       ) : (
@@ -275,36 +273,60 @@ function GamesList({
             <>
               <li
                 key={games.id}
-                className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_40rem] grid-rows-auto gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 h-max border-emerald-600 border-[1px]"
+                className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_40rem] grid-rows-[repeat(4,minmax(3rem,max-content))] gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 h-max border-emerald-600 border-[1px]"
               >
                 {games.image && (
                   <img
-                    className="row-span-3 w-full place-self-start sm:items-center"
+                    className="row-span-full w-full place-self-start sm:items-center"
                     src={games.image.icon_url}
                     alt="image for game."
                   />
                 )}
+                <div>
+                  <p className="text-3xl sm:text-4xl text-white">
+                    <span className="block py-2 pl-2 font-bold bg-gray-900/50 rounded-md">
+                      {games.name ? games.name : "No Title"}
+                    </span>
 
-                <p className="text-3xl sm:text-4xl font-bold text-cyan-200">
-                  {games.name ? games.name : "No Title"}
-                  <br />
-                  <span className="text-xl text-yellow-300">
-                    {" "}
-                    Release{`(`}d{`)`}:{" "}
-                    {games.original_release_date
-                      ? games.original_release_date
-                      : " No date."}
+                    <span className="text-xl font-bold text-yellow-300">
+                      {" "}
+                      Release{`(`}d{`)`}:{" "}
+                    </span>
+                    <span className="text-xl text-white">
+                      {games.original_release_date
+                        ? games.original_release_date
+                        : " No date."}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <span className="text-xl text-white font-bold">
+                    Platforms:
                   </span>
-                </p>
+                  {games.platforms && (
+                    <ul className="flex flex-wrap w-full text-xl text-white">
+                      {games.platforms.map((platform) => (
+                        <li
+                          className="p-2 m-1 border border-cyan-600 rounded-md bg-gray-700"
+                          key={platform.id}
+                        >
+                          {platform.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
                 {games.deck ? (
-                  <p className="text-xl text-sky-200">
+                  <p className="text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
                     <span className="font-bold">Synopsis:</span>{" "}
                     {games.deck.length > 150
                       ? games.deck.slice(0, 150) + "..."
                       : games.deck}
                   </p>
                 ) : (
-                  <p className="text-xl text-sky-200">No synopsis available.</p>
+                  <p className="text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
+                    No synopsis available.
+                  </p>
                 )}
 
                 <a
@@ -319,7 +341,7 @@ function GamesList({
                 {/* Open and close modal button */}
                 {games.description && (
                   <button
-                    className="absolute flex justify-center items-center text-white font-bold  bg-pink-600/70 h-10 px-2 right-0 top-0 cursor-pointer border-l-[1px] border-b-[1px] border-pink-400 hover:bg-pink-600 transition-all"
+                    className="absolute flex justify-center items-center text-white font-bold  bg-pink-600/70 h-10 px-2 right-1 top-1 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-pink-400 hover:bg-pink-600 transition-all"
                     onClick={() => {
                       onHandleShowDetails(games.id);
                     }}
@@ -330,7 +352,7 @@ function GamesList({
 
                 {/* Save to favourites button */}
                 <button
-                  className="absolute right-0 bottom-0 bg-green-700 text-white font-bold p-1 hover:bg-green-900 px-2 border-green-400 border-t-[1px] border-l-[1px] transition-all"
+                  className="absolute right-1 bottom-1 rounded-lg bg-green-700 text-white font-bold p-1 hover:bg-green-500 px-2 border-green-400 border-t-[1px] border-l-[1px] transition-all"
                   onClick={() => {
                     handleAddNewFav(games.id, games.name, games.image.icon_url);
                   }}
