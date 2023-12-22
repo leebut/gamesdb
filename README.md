@@ -22,5 +22,5 @@ My API key is in **.env** of the project root, which is not uploaded to Github. 
 
 ## Functionality
 
-At the moment the search input is not working, so a hard-coded search is in place.
+Search input is now working.
 CORS is being dealt with by a third-party [https://corsproxy.io/](https://corsproxy.io/). I will use a Netlify function when I deploy there.
