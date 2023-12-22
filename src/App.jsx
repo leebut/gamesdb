@@ -125,6 +125,7 @@ export default function App() {
         />
       </Header>
 
+      {!query && <LandingPage />}
       {error && <ErrorMessage error={error} />}
 
       {isLoading ? (
@@ -135,7 +136,6 @@ export default function App() {
           query={query}
           onHandleShowDetails={handleShowDetails}
           onHandleAddFav={handleAddFav}
-          setError={setError}
         >
           <FavGames
             favGamesList={favGamesList}
@@ -236,6 +236,18 @@ function FavGames({ favGamesList, onHandelDeleteFav }) {
   );
 }
 
+// Landing page component for when the query input is empty.
+function LandingPage() {
+  return (
+    <>
+      <section className="grid grid-cols-12 border border-white">
+        <article className="col-start-4 col-span-6 bg-yellow-600 h-10"></article>
+      </section>
+      <h2 className="text-4xl font-bold text-white">Landing Page</h2>;
+    </>
+  );
+}
+
 // Show the list of games from the API response. I decided not to create
 // another component for the list items to reduce the amount of
 // propdrilling and number of components.
@@ -246,7 +258,6 @@ function GamesList({
   onHandleShowDetails,
   onHandleAddFav,
   children,
-  setError,
 }) {
   function handleAddNewFav(id, name, icon) {
     const newFav = {
@@ -261,23 +272,23 @@ function GamesList({
     <section className="relative flex flex-col items-center">
       {children}
 
-      {gamesList.length === 0 && !query && (
+      {gamesList.length === 0 && query && (
         <h2 className="text-white text-2xl">No games found matching {query}</h2>
       )}
       {!query ? (
         <h2 className="text-white text-2xl">Enter a game name to search.</h2>
       ) : (
-        <ul className="grid grid-cols-1 gap-3 sm:gap-4 mt-5 w-11/12 sm:w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(50rem,51rem))] justify-center">
+        <ul className="grid grid-cols-1 gap-3 sm:gap-4 mt-5 w-11/12 sm:w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(46rem,46rem))] justify-center">
           {/* md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] */}
           {gamesList?.map((games) => (
             <>
               <li
                 key={games.id}
-                className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_40rem] grid-rows-[repeat(4,minmax(3rem,max-content))] gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 h-max border-emerald-600 border-[1px]"
+                className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_35rem] grid-rows-[repeat(4,minmax(3rem,max-content))] gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 h-max border-emerald-600 border-[1px]"
               >
                 {games.image && (
                   <img
-                    className="row-span-full w-full place-self-start sm:items-center"
+                    className="row-span-2 w-full place-self-start sm:items-center"
                     src={games.image.icon_url}
                     alt="image for game."
                   />
@@ -317,20 +328,20 @@ function GamesList({
                   )}
                 </div>
                 {games.deck ? (
-                  <p className="text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
+                  <p className="col-span-2 text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
                     <span className="font-bold">Synopsis:</span>{" "}
                     {games.deck.length > 150
                       ? games.deck.slice(0, 150) + "..."
                       : games.deck}
                   </p>
                 ) : (
-                  <p className="text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
+                  <p className="col-span-2 text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
                     No synopsis available.
                   </p>
                 )}
 
                 <a
-                  className=" text-lg sm:text-2xl text-gray-300 font-bold"
+                  className="col-span-2 text-lg sm:text-2xl text-gray-300 font-bold"
                   href={games.site_detail_url}
                   target="_blank"
                   rel="noreferrer"
