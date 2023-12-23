@@ -33,18 +33,17 @@ export default function App() {
   // Reset Everything when no search query
   useEffect(() => {
     if (!query) {
-      setError("Search for a game.");
       setGamesList([]);
       setNumItems("");
       setPage(1);
       return;
     }
-  }, [query, setNumItems, setGamesList, setError, setPage]);
+  }, [query, setNumItems, setGamesList, setPage]);
 
   // Fetch the games list.
   useEffect(() => {
     if (!query) {
-      setError("Search for a game.");
+      // setError("Search for a game.");
       return;
     }
 
@@ -150,6 +149,15 @@ export default function App() {
           />
         </GamesList>
       )}
+      <LowerPageCount>
+        <PageCount
+          numItems={numItems}
+          page={page}
+          setPage={setPage}
+          query={query}
+          setIsPageClicked={setIsPageClicked}
+        />
+      </LowerPageCount>
 
       {gameId && (
         <GameModal
@@ -295,15 +303,15 @@ function GamesList({
                 )}
                 <div>
                   <p className="text-3xl sm:text-4xl text-white">
-                    <span className="block py-2 pl-2 font-bold bg-gray-900/50 rounded-md">
+                    <span className="block py-2 pl-2 font-bold bg-gray-900/50 rounded-md border border-gray-500">
                       {games.name ? games.name : "No Title"}
                     </span>
 
-                    <span className="text-xl font-bold text-yellow-300">
+                    <span className="text-xl font-bold">
                       {" "}
                       Release{`(`}d{`)`}:{" "}
                     </span>
-                    <span className="text-xl text-white">
+                    <span className="text-xl">
                       {games.original_release_date
                         ? games.original_release_date
                         : " No date."}
@@ -318,7 +326,7 @@ function GamesList({
                     <ul className="flex flex-wrap w-full text-xl text-white">
                       {games.platforms.map((platform) => (
                         <li
-                          className="p-2 m-1 border border-cyan-600 rounded-md bg-gray-700"
+                          className="p-2 m-1 border border-cyan-600 rounded-md bg-purple-900/20"
                           key={platform.id}
                         >
                           {platform.name}
@@ -352,7 +360,7 @@ function GamesList({
                 {/* Open and close modal button */}
                 {games.description && (
                   <button
-                    className="absolute flex justify-center items-center text-white font-bold  bg-pink-600/70 h-10 px-2 right-1 top-1 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-pink-400 hover:bg-pink-600 transition-all"
+                    className="absolute flex justify-center items-center text-white font-bold  bg-pink-600/80 h-10 px-2 right-1 top-1 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-pink-400 hover:bg-pink-600 shadow-md shadow-black transition-all"
                     onClick={() => {
                       onHandleShowDetails(games.id);
                     }}
@@ -414,6 +422,12 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
         )}
       </ul>
     </>
+  );
+}
+
+function LowerPageCount({ children }) {
+  return (
+    <section className="flex flex-col mt-3 items-center">{children}</section>
   );
 }
 
