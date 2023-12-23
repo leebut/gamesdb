@@ -233,10 +233,12 @@ function FavGames({ favGamesList, onHandelDeleteFav }) {
       {favGamesList?.map((game) => (
         <li
           key={game.id}
-          className="grid grid-cols-[3rem_20rem_3rem] gap-1 gap-x-2 items-center bg-gray-800 pr-3 border-r-2 border-white/30 hover:bg-gray-700 transition-all"
+          className="grid grid-cols-[7fr_1fr] w-[26rem] bg-gray-800 pr-3 border-r-4 border-white/30 hover:bg-gray-700 transition-all"
         >
-          <img className="w-12 h-12" src={game.icon} alt={game.name} />
-          &nbsp;{game.name} &nbsp;{" "}
+          <button className="grid grid-cols-[1fr_6fr] gap-x-2 w-full items-center">
+            <img className="w-12 h-12" src={game.icon} alt={game.name} />
+            <p className="justify-self-start">{game.name}</p>
+          </button>
           <button onClick={() => onHandelDeleteFav(game.id)}>🗑️</button>
         </li>
       ))}
@@ -393,34 +395,45 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
 
   return (
     <>
-      {numItems && (
-        <p className="text-2xl text-gray-300 font-bold">
-          {totalGames} games found containing the word(s) {query}.
-        </p>
+      {!numItems ? (
+        <p className="text-2xl text-gray-300 font-bold">No games found.</p>
+      ) : (
+        <>
+          {numItems === 1 ? (
+            <p className="text-2xl text-gray-300 font-bold">
+              {totalGames} game found containing the word(s) {query}.
+            </p>
+          ) : (
+            <p className="text-2xl text-gray-300 font-bold">
+              {totalGames} games found containing the word(s) {query}.
+            </p>
+          )}
+
+          <ul className="flex flex-wrap">
+            {Array.from({ length: numPages }, (_, i) => i + 1).map(
+              (eachPage, i) => (
+                // <p key={page.i}>page: {page}</p>
+                <li key={i}>
+                  <button
+                    className={
+                      eachPage == page
+                        ? "text-2xl text-gray-300 bg-cyan-700 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
+                        : "text-2xl text-gray-300 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
+                    }
+                    value={eachPage}
+                    onClick={(e) => {
+                      setPage(e.target.value);
+                      setIsPageClicked(true);
+                    }}
+                  >
+                    {eachPage}
+                  </button>
+                </li>
+              )
+            )}
+          </ul>
+        </>
       )}
-      <ul className="flex flex-wrap">
-        {Array.from({ length: numPages }, (_, i) => i + 1).map(
-          (eachPage, i) => (
-            // <p key={page.i}>page: {page}</p>
-            <li key={i}>
-              <button
-                className={
-                  eachPage == page
-                    ? "text-2xl text-gray-300 bg-cyan-700 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
-                    : "text-2xl text-gray-300 outline-none border-[1px] border-cyan-400 m-1 p-1 px-2"
-                }
-                value={eachPage}
-                onClick={(e) => {
-                  setPage(e.target.value);
-                  setIsPageClicked(true);
-                }}
-              >
-                {eachPage}
-              </button>
-            </li>
-          )
-        )}
-      </ul>
     </>
   );
 }
