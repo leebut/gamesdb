@@ -17,6 +17,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [gameId, setGameId] = useState(null);
+  const [gameGuid, setGameGuid] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showFavList, setShowFavList] = useState(false);
   const [favGamesList, setFavGamesList] = useState(function () {
@@ -29,6 +30,9 @@ export default function App() {
 
   // URL to fetch the games list based on the query state.
   const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}&page=${page}`;
+
+  // URL to search by game id
+  const searchIdUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/game/${gameGuid}/?api_key=${apiKey}&format=json`;
 
   // Reset Everything when no search query
   useEffect(() => {
@@ -114,6 +118,34 @@ export default function App() {
   function handleShowFavList() {
     setShowFavList((showFavList) => !showFavList);
   }
+
+  function handleSearchById(id) {
+    setGameGuid(id);
+
+    const timerId = setTimeout(() => {
+      async function fetchGames() {
+        try {
+          setError("");
+          setIsLoading(true);
+          // const res = await fetch(searchResources);
+          const res = await fetch(searchIdUrl);
+
+          if (!res.ok) throw new Error("Could not fetch the game.");
+          const data = await res.json();
+          if (!data) throw new Error("Nothing to show.");
+          // console.log(data.results);
+        } catch (err) {
+          alert(err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+      fetchGames();
+    }, 1000);
+    return () => clearTimeout(timerId);
+  }
+
   return (
     <>
       <Header>
@@ -139,6 +171,7 @@ export default function App() {
           <FavGames
             favGamesList={favGamesList}
             onHandelDeleteFav={handelDeleteFav}
+            onHandleSearchById={handleSearchById}
           />
           <PageCount
             numItems={numItems}
@@ -223,7 +256,7 @@ function FavouritesButton({ favGamesList, onHandleShowFavList }) {
   );
 }
 
-function FavGames({ favGamesList, onHandelDeleteFav }) {
+function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
   // console.log(favGamesList);
   return (
     <ul
@@ -235,7 +268,10 @@ function FavGames({ favGamesList, onHandelDeleteFav }) {
           key={game.id}
           className="grid grid-cols-[7fr_1fr] w-[26rem] bg-gray-800 pr-3 border-r-4 border-white/30 hover:bg-gray-700 transition-all"
         >
-          <button className="grid grid-cols-[1fr_6fr] gap-x-2 w-full items-center">
+          <button
+            className="grid grid-cols-[1fr_6fr] gap-x-2 w-full items-center"
+            onClick={() => onHandleSearchById(game.guid)}
+          >
             <img className="w-12 h-12" src={game.icon} alt={game.name} />
             <p className="justify-self-start">{game.name}</p>
           </button>
@@ -396,7 +432,7 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
   return (
     <>
       {!numItems ? (
-        <p className="text-2xl text-gray-300 font-bold">No games found.</p>
+        ""
       ) : (
         <>
           {numItems === 1 ? (
