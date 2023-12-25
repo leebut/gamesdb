@@ -19,6 +19,8 @@ export default function App() {
   const [gameId, setGameId] = useState(null);
   const [gameGuid, setGameGuid] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [searchByGuidToken, setSearchByGuidToken] = useState(false);
+  const [favGameObj, setFavGameObj] = useState(null);
   const [showFavList, setShowFavList] = useState(false);
   const [favGamesList, setFavGamesList] = useState(function () {
     const storedGames = localStorage.getItem("saved_games");
@@ -117,6 +119,7 @@ export default function App() {
   }
 
   function handleSearchById(guid) {
+    setSearchByGuidToken(true);
     alert(`GUID HANDLE SEARCH: ${guid}`);
     setGameGuid(guid);
   }
@@ -125,7 +128,7 @@ export default function App() {
     function () {
       // getGuidGame();
       async function getGuidGame() {
-        if (gameGuid) {
+        if (gameGuid && searchByGuidToken) {
           // URL to search by game id
           const searchIdUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/game/${gameGuid}/?api_key=${apiKey}&format=json`;
           try {
@@ -137,6 +140,7 @@ export default function App() {
             const data = await res.json();
             if (!data) throw new Error("Nothing to show.");
             console.log(data.results);
+            setFavGameObj(data.results);
           } catch (err) {
             alert(err.message);
             setError(err.message);
@@ -148,29 +152,8 @@ export default function App() {
 
       getGuidGame();
     },
-    [gameGuid]
+    [gameGuid, searchByGuidToken]
   );
-
-  // async function getGuidGame() {
-  //   // URL to search by game id
-  //   const searchIdUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/game/${gameGuid}/?api_key=${apiKey}&format=json`;
-  //   try {
-  //     setError("");
-  //     setIsLoading(true);
-  //     const res = await fetch(searchIdUrl);
-
-  //     if (!res.ok) throw new Error("Could not fetch the game.");
-  //     const data = await res.json();
-  //     if (!data) throw new Error("Nothing to show.");
-  //     console.log(data.results);
-  //     // setShowDetails(true);
-  //   } catch (err) {
-  //     alert(err.message);
-  //     setError(err.message);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
 
   return (
     <>
@@ -218,7 +201,7 @@ export default function App() {
         />
       </LowerPageCount>
 
-      {gameGuid && (
+      {gameGuid && !searchByGuidToken && (
         <GameModal
           gamesList={gamesList}
           gameId={gameId}
@@ -229,6 +212,7 @@ export default function App() {
           setShowDetails={setShowDetails}
         />
       )}
+      {searchByGuidToken && favGameObj && <FavModal favGameObj={favGameObj} />}
     </>
   );
 }
@@ -265,6 +249,10 @@ function SearchInput({ onHandleQueryInput }) {
       }}
     />
   );
+}
+
+function FavModal({ favGameObj }) {
+  return <p className="text-white text-4xl">{favGameObj.name}</p>;
 }
 
 function FavouritesButton({ favGamesList, onHandleShowFavList }) {
