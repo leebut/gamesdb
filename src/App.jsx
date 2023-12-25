@@ -31,9 +31,6 @@ export default function App() {
   // URL to fetch the games list based on the query state.
   const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}&page=${page}`;
 
-  // URL to search by game id
-  const searchIdUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/game/${gameGuid}/?api_key=${apiKey}&format=json`;
-
   // Reset Everything when no search query
   useEffect(() => {
     if (!query) {
@@ -102,7 +99,7 @@ export default function App() {
   }
 
   function handleShowDetails(id) {
-    setGameId(id);
+    setGameGuid(id);
     setShowDetails(true);
   }
 
@@ -112,39 +109,68 @@ export default function App() {
   }
   function handelDeleteFav(id) {
     setFavGamesList((favGamesList) =>
-      favGamesList.filter((game) => game.id !== id)
+      favGamesList.filter((game) => game.guid !== id)
     );
   }
   function handleShowFavList() {
     setShowFavList((showFavList) => !showFavList);
   }
 
-  function handleSearchById(id) {
-    setGameGuid(id);
+  function handleSearchById(guid) {
+    alert(`GUID HANDLE SEARCH: ${guid}`);
+    setGameGuid(guid);
+  }
 
-    const timerId = setTimeout(() => {
-      async function fetchGames() {
-        try {
-          setError("");
-          setIsLoading(true);
-          // const res = await fetch(searchResources);
-          const res = await fetch(searchIdUrl);
+  useEffect(
+    function () {
+      // getGuidGame();
+      async function getGuidGame() {
+        if (gameGuid) {
+          // URL to search by game id
+          const searchIdUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/game/${gameGuid}/?api_key=${apiKey}&format=json`;
+          try {
+            setError("");
+            setIsLoading(true);
+            const res = await fetch(searchIdUrl);
 
-          if (!res.ok) throw new Error("Could not fetch the game.");
-          const data = await res.json();
-          if (!data) throw new Error("Nothing to show.");
-          // console.log(data.results);
-        } catch (err) {
-          alert(err.message);
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
+            if (!res.ok) throw new Error("Could not fetch the game.");
+            const data = await res.json();
+            if (!data) throw new Error("Nothing to show.");
+            console.log(data.results);
+          } catch (err) {
+            alert(err.message);
+            setError(err.message);
+          } finally {
+            setIsLoading(false);
+          }
         }
       }
-      fetchGames();
-    }, 1000);
-    return () => clearTimeout(timerId);
-  }
+
+      getGuidGame();
+    },
+    [gameGuid]
+  );
+
+  // async function getGuidGame() {
+  //   // URL to search by game id
+  //   const searchIdUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/game/${gameGuid}/?api_key=${apiKey}&format=json`;
+  //   try {
+  //     setError("");
+  //     setIsLoading(true);
+  //     const res = await fetch(searchIdUrl);
+
+  //     if (!res.ok) throw new Error("Could not fetch the game.");
+  //     const data = await res.json();
+  //     if (!data) throw new Error("Nothing to show.");
+  //     console.log(data.results);
+  //     // setShowDetails(true);
+  //   } catch (err) {
+  //     alert(err.message);
+  //     setError(err.message);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
 
   return (
     <>
@@ -192,10 +218,12 @@ export default function App() {
         />
       </LowerPageCount>
 
-      {gameId && (
+      {gameGuid && (
         <GameModal
           gamesList={gamesList}
           gameId={gameId}
+          gameGuid={gameGuid}
+          setGameGuid={setGameGuid}
           setGameId={setGameId}
           showDetails={showDetails}
           setShowDetails={setShowDetails}
@@ -275,7 +303,7 @@ function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
             <img className="w-12 h-12" src={game.icon} alt={game.name} />
             <p className="justify-self-start">{game.name}</p>
           </button>
-          <button onClick={() => onHandelDeleteFav(game.id)}>🗑️</button>
+          <button onClick={() => onHandelDeleteFav(game.guid)}>🗑️</button>
         </li>
       ))}
     </ul>
@@ -305,9 +333,9 @@ function GamesList({
   onHandleAddFav,
   children,
 }) {
-  function handleAddNewFav(id, name, icon) {
+  function handleAddNewFav(guid, name, icon) {
     const newFav = {
-      id,
+      guid,
       name,
       icon,
     };
@@ -400,7 +428,7 @@ function GamesList({
                   <button
                     className="absolute flex justify-center items-center text-white font-bold  bg-pink-600/80 h-10 px-2 right-1 top-1 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-pink-400 hover:bg-pink-600 shadow-md shadow-black transition-all"
                     onClick={() => {
-                      onHandleShowDetails(games.id);
+                      onHandleShowDetails(games.guid);
                     }}
                   >
                     <p>📔 Notes</p>
@@ -411,7 +439,11 @@ function GamesList({
                 <button
                   className="absolute right-1 bottom-1 rounded-lg bg-green-700 text-white font-bold p-1 hover:bg-green-500 px-2 border-green-400 border-t-[1px] border-l-[1px] transition-all"
                   onClick={() => {
-                    handleAddNewFav(games.id, games.name, games.image.icon_url);
+                    handleAddNewFav(
+                      games.guid,
+                      games.name,
+                      games.image.icon_url
+                    );
                   }}
                 >
                   💖 Favourite
@@ -500,6 +532,8 @@ function ErrorMessage({ error }) {
 function GameModal({
   gamesList,
   gameId,
+  gameGuid,
+  setGameGuid,
   setGameId,
   showDetails,
   setShowDetails,
@@ -524,7 +558,7 @@ function GameModal({
         <section className="grid grid-cols-1 mt-4 h-screen sm:w-[70rem] relative">
           {gamesList?.map(
             (games) =>
-              games.id === gameId && (
+              games.guid === gameGuid && (
                 <>
                   {/* BG IMAGE */}
                   {/* <img
@@ -570,7 +604,7 @@ function GameModal({
                     className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
                     onClick={() => {
                       setShowDetails(false);
-                      setGameId(null);
+                      setGameGuid(null);
                     }}
                   >
                     CLOSE DETAILS
