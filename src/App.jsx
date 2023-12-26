@@ -635,11 +635,11 @@ function GameModal({
   return (
     <>
       <dialog
-        className="flex flex-col justify-start items-center w-screen h-screen bg-gray-800/95 fixed overflow-y-scroll top-0 left-0"
+        className="flex flex-col backdrop-blur-sm justify-start items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
         open={showDetails}
         onClose={() => setShowDetails(false)}
       >
-        <section className="grid grid-cols-1 mt-4 h-screen sm:w-[70rem] relative">
+        <section className="grid grid-cols-1 p-4 bg-gray-900/70 mt-4 h-screen sm:w-[70rem] relative">
           {gamesList?.map(
             (games) =>
               games.guid === gameGuid && (
@@ -654,14 +654,14 @@ function GameModal({
                   /> */}
                   {games.image.original_url && (
                     <img
-                      className="w-1/4"
+                      className="w-1/4 mb-3"
                       src={games.image.original_url}
                       alt={games.name}
                     />
                   )}
                   {games.description ? (
                     <article
-                      className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
+                      className="flex flex-col text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
                       style={{ width: "100%" }}
                     >
                       {/* {console.log(games.description)} */}
