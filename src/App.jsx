@@ -201,7 +201,7 @@ export default function App() {
         />
       </LowerPageCount>
 
-      {gameGuid && !searchByGuidToken && (
+      {gameGuid && showDetails && (
         <GameModal
           gamesList={gamesList}
           gameId={gameId}
@@ -212,7 +212,15 @@ export default function App() {
           setShowDetails={setShowDetails}
         />
       )}
-      {searchByGuidToken && favGameObj && <FavModal favGameObj={favGameObj} />}
+      {favGameObj !== null && (
+        <FavModal
+          favGameObj={favGameObj}
+          setFavGameObj={setFavGameObj}
+          searchByGuidToken={searchByGuidToken}
+          setSearchByGuidToken={setSearchByGuidToken}
+          setShowFavList={setShowFavList}
+        />
+      )}
     </>
   );
 }
@@ -251,9 +259,97 @@ function SearchInput({ onHandleQueryInput }) {
   );
 }
 
-function FavModal({ favGameObj }) {
-  return <p className="text-white text-4xl">{favGameObj.name}</p>;
+function FavModal({
+  favGameObj,
+  searchByGuidToken,
+  setSearchByGuidToken,
+  setFavGameObj,
+  setShowFavList,
+}) {
+  function addURL(str) {
+    const url = "https://www.giantbomb.com";
+    // const regex = /"([^/]*)/g;
+    const regex = /href="\//g;
+    str = str.replace(regex, `<a target="_blank" href="${url}/`);
+    return str;
+  }
+  const games = favGameObj;
+  return (
+    <>
+      <dialog
+        className="flex flex-col justify-start items-center w-screen h-screen bg-gray-800/95 fixed overflow-y-scroll top-0 left-0"
+        open={searchByGuidToken}
+        onClose={() => setSearchByGuidToken(false)}
+      >
+        <section className="grid grid-cols-1 mt-4 h-screen sm:w-[70rem] relative">
+          <>
+            {games.image.original_url && (
+              <img
+                className="w-1/4"
+                src={games.image.original_url}
+                alt={games.name}
+              />
+            )}
+            {games.description ? (
+              <article
+                className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
+                style={{ width: "100%" }}
+              >
+                {/* {console.log(games.description)} */}
+                <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-500">
+                  {games.name}
+                </h2>
+                <h2 className="text-3xl font-bold text-amber-100 mt-3">
+                  Quick Introduction
+                </h2>
+                {games.deck && (
+                  <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
+                    {games.deck}
+                  </p>
+                )}
+                <article className="sm:grid sm:grid-cols-2 sm:gap-3">
+                  {/* {Parser().parse(games.description)} */}
+                  {Parser().parse(addURL(games.description))}
+                </article>
+              </article>
+            ) : (
+              <p className="text-slate-300 text-2xl font-bold">
+                No description available.
+              </p>
+            )}
+            <button
+              className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
+              onClick={() => {
+                setFavGameObj(null);
+                setSearchByGuidToken(false);
+                setShowFavList(false);
+              }}
+            >
+              CLOSE DETAILS
+            </button>
+          </>
+          )
+        </section>
+        {/* {" "}
+        <p className="text-4xl text-white">{favGameObj.name}</p>;
+        <p className="text-2xl text-white">{favGameObj.deck}</p>;
+        <button
+          className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
+          onClick={() => {
+            setSearchByGuidToken(false);
+            setFavGameObj(null);
+            setShowFavList(false);
+          }}
+        >
+          CLOSE DETAILS
+        </button> */}
+      </dialog>
+    </>
+  );
 }
+// function FavModal({ favGameObj }) {
+//   return <p className="text-white text-4xl">{favGameObj.name}</p>;
+// }
 
 function FavouritesButton({ favGamesList, onHandleShowFavList }) {
   return (
@@ -580,8 +676,10 @@ function GameModal({
                           {games.deck}
                         </p>
                       )}
-                      {/* {Parser().parse(games.description)} */}
-                      {Parser().parse(addURL(games.description))}
+                      <article className="sm:grid sm:grid-cols-2 sm:gap-3">
+                        {/* {Parser().parse(games.description)} */}
+                        {Parser().parse(addURL(games.description))}
+                      </article>
                     </article>
                   ) : (
                     <p className="text-slate-300 text-2xl font-bold">
