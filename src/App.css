@@ -30,7 +30,7 @@ article h3 {
   grid-column: 1/-1;
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.4rem;
 }
 article p {
   grid-column: 1/-1;
@@ -45,6 +45,7 @@ article p {
 }
 
 article ul {
+  grid-column: 1 / -1;
   list-style-type: square;
   margin-left: 1rem;
   font-size: 1.4rem;

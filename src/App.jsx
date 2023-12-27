@@ -221,6 +221,7 @@ export default function App() {
           setShowFavList={setShowFavList}
         />
       )}
+      <PageFooter />
     </>
   );
 }
@@ -277,11 +278,11 @@ function FavModal({
   return (
     <>
       <dialog
-        className="flex flex-col justify-start items-center w-screen h-screen bg-gray-800/95 fixed overflow-y-scroll top-0 left-0"
+        className="flex flex-col backdrop-blur-sm justify-start items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
         open={searchByGuidToken}
         onClose={() => setSearchByGuidToken(false)}
       >
-        <section className="grid grid-cols-1 mt-4 h-screen sm:w-[70rem] relative">
+        <section className="grid grid-cols-1 p-4 bg-gray-900/70 mt-4 h-screen sm:w-[70rem] relative">
           <>
             {games.image.original_url && (
               <img
@@ -426,6 +427,14 @@ function GamesList({
     onHandleAddFav(newFav);
   }
 
+  function convertDate(str) {
+    const apiDate = str;
+    const date = new Date(apiDate);
+    const parts = { day: "numeric", month: "long", year: "numeric" };
+    const convDate = date.toLocaleDateString("en-GB", parts);
+    return convDate;
+  }
+
   return (
     <section className="relative flex flex-col items-center">
       {children}
@@ -446,7 +455,7 @@ function GamesList({
               >
                 {games.image && (
                   <img
-                    className="row-span-2 w-full place-self-start sm:items-center"
+                    className="row-span-2 w-full place-self-start sm:items-center -translate-x-4 -translate-y-4 border border-lime-300 rounded-md shadow-lg shadow-black/50"
                     src={games.image.icon_url}
                     alt="image for game."
                   />
@@ -463,7 +472,7 @@ function GamesList({
                     </span>
                     <span className="text-xl">
                       {games.original_release_date
-                        ? games.original_release_date
+                        ? convertDate(games.original_release_date)
                         : " No date."}
                     </span>
                   </p>
@@ -476,7 +485,7 @@ function GamesList({
                     <ul className="flex flex-wrap w-full text-xl text-white">
                       {games.platforms.map((platform) => (
                         <li
-                          className="p-2 m-1 border border-cyan-600 rounded-md bg-purple-900/20"
+                          className="px-2 py-1 m-1 border border-cyan-600 rounded-md bg-purple-900/20"
                           key={platform.id}
                         >
                           {platform.name}
@@ -510,18 +519,18 @@ function GamesList({
                 {/* Open and close modal button */}
                 {games.description && (
                   <button
-                    className="absolute flex justify-center items-center text-white font-bold  bg-pink-600/80 h-10 px-2 right-1 top-1 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-pink-400 hover:bg-pink-600 shadow-md shadow-black transition-all"
+                    className="absolute flex justify-center items-center text-xl text-white font-bold  bg-sky-700/80 h-10 px-2 right-1 top-1 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-sky-400 hover:bg-sky-600 shadow-md shadow-black transition-all"
                     onClick={() => {
                       onHandleShowDetails(games.guid);
                     }}
                   >
-                    <p>📔 Notes</p>
+                    <p>📔 Details</p>
                   </button>
                 )}
 
                 {/* Save to favourites button */}
                 <button
-                  className="absolute right-1 bottom-1 rounded-lg bg-green-700 text-white font-bold p-1 hover:bg-green-500 px-2 border-green-400 border-t-[1px] border-l-[1px] transition-all"
+                  className="absolute left-24 top-[7.5rem] rounded-lg bg-purple-700/80 text-3xl  text-white font-bold p-1 hover:scale-125 hover:bg-purple-500 px-2 border-purple-300 border-t-[1px] border-l-[1px] transition-all"
                   onClick={() => {
                     handleAddNewFav(
                       games.guid,
@@ -530,7 +539,7 @@ function GamesList({
                     );
                   }}
                 >
-                  💖 Favourite
+                  💖
                 </button>
               </li>
             </>
@@ -701,5 +710,19 @@ function GameModal({
         </section>
       </dialog>
     </>
+  );
+}
+
+function PageFooter() {
+  return (
+    <section className="flex flex-col items-center mx-auto my-4 justify-center text-2xl text-white p-2 border border-green-400 rounded-md w-4/6">
+      <p>This website is one of my learning projects for learning React.</p>
+      <p>
+        Data is provided by the{" "}
+        <a target="_blank" rel="noreferrer" href="https://giantbomb.com/api">
+          Giant Bomb API
+        </a>
+      </p>
+    </section>
   );
 }
