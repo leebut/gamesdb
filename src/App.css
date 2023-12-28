@@ -32,13 +32,14 @@ article h3 {
   font-weight: 600;
   margin-bottom: 0.4rem;
 }
-article p {
+article p,
+article blockquote {
   grid-column: 1/-1;
+  max-width: 100%;
   margin-bottom: 1rem;
   font-size: 1.5rem;
   border-top: solid 1px rgba(101, 179, 252, 0.4);
   border-bottom: solid 1px rgba(101, 179, 252, 0.4);
-
   border-radius: 0.8rem;
   background: rgba(0, 19, 41, 0.2);
   padding: 0.5rem;
@@ -54,8 +55,8 @@ ul li {
   margin: 0.2rem 0;
 }
 article table {
+  grid-column: 1 / -1;
   border: solid 1px rgba(0, 180, 180, 0.5);
-  width: max-content;
   margin: 0.5rem 0;
 }
 article th {

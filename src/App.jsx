@@ -231,7 +231,7 @@ export default function App() {
 
 function Header({ children }) {
   return (
-    <header className="relative flex justify-around items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
+    <header className="relative flex gap-9 justify-center items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
       {children}
     </header>
   );
@@ -260,114 +260,26 @@ function SearchInput({ onHandleQueryInput }) {
   );
 }
 
-function FavModal({
-  favGameObj,
-  searchByGuidToken,
-  setSearchByGuidToken,
-  setFavGameObj,
-  setShowFavList,
-}) {
-  function addURL(str) {
-    const url = "https://www.giantbomb.com";
-    // const regex = /"([^/]*)/g;
-    const regex = /href="\//g;
-    str = str.replace(regex, `<a target="_blank" href="${url}/`);
-    return str;
-  }
-  const games = favGameObj;
-  return (
-    <>
-      <dialog
-        className="flex flex-col backdrop-blur-sm justify-start items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
-        open={searchByGuidToken}
-        onClose={() => setSearchByGuidToken(false)}
-      >
-        <section className="grid grid-cols-1 p-4 bg-gray-900/70 mt-4 h-screen sm:w-[70rem] relative">
-          <>
-            {games.image.original_url && (
-              <img
-                className="w-1/4"
-                src={games.image.original_url}
-                alt={games.name}
-              />
-            )}
-            {games.description ? (
-              <article
-                className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
-                style={{ width: "100%" }}
-              >
-                {/* {console.log(games.description)} */}
-                <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-500">
-                  {games.name}
-                </h2>
-                <h2 className="text-3xl font-bold text-amber-100 mt-3">
-                  Quick Introduction
-                </h2>
-                {games.deck && (
-                  <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
-                    {games.deck}
-                  </p>
-                )}
-                <article className="sm:grid sm:grid-cols-2 sm:gap-3">
-                  {/* {Parser().parse(games.description)} */}
-                  {Parser().parse(addURL(games.description))}
-                </article>
-              </article>
-            ) : (
-              <p className="text-slate-300 text-2xl font-bold">
-                No description available.
-              </p>
-            )}
-            <button
-              className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
-              onClick={() => {
-                setFavGameObj(null);
-                setSearchByGuidToken(false);
-                setShowFavList(false);
-              }}
-            >
-              CLOSE DETAILS
-            </button>
-          </>
-          )
-        </section>
-        {/* {" "}
-        <p className="text-4xl text-white">{favGameObj.name}</p>;
-        <p className="text-2xl text-white">{favGameObj.deck}</p>;
-        <button
-          className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
-          onClick={() => {
-            setSearchByGuidToken(false);
-            setFavGameObj(null);
-            setShowFavList(false);
-          }}
-        >
-          CLOSE DETAILS
-        </button> */}
-      </dialog>
-    </>
-  );
-}
-// function FavModal({ favGameObj }) {
-//   return <p className="text-white text-4xl">{favGameObj.name}</p>;
-// }
-
 function FavouritesButton({ favGamesList, onHandleShowFavList }) {
   return (
     <button
-      className="bg-gray-600 p-2 rounded-lg border-2 border-transparent hover:border-2 hover:border-white transition-all"
+      className="bg-gray-600 p-2 rounded-lg border-2 border-white hover:border-2 hover:border-yellow-300 transition-all"
       onClick={onHandleShowFavList}
     >
-      <span className="text-3xl">😍</span>{" "}
+      <span className="text-3xl">💗</span>&nbsp;
       <span className="font-bold text-white">
-        <sup className="text-lg bg-red-800 rounded-full">
-          &nbsp;{favGamesList.length}&nbsp;
+        <sup className="text-xl bg-red-800 rounded-full px-2">
+          {favGamesList.length}
         </sup>
-        Favourites
+        &nbsp; favourites
       </span>
     </button>
   );
 }
+
+// function FavModal({ favGameObj }) {
+//   return <p className="text-white text-4xl">{favGameObj.name}</p>;
+// }
 
 function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
   // console.log(favGamesList);
@@ -478,11 +390,14 @@ function GamesList({
                   </p>
                 </div>
                 <div>
-                  <span className="text-xl text-white font-bold">
+                  {/* <span className="text-xl text-white font-bold">
                     Platforms:
-                  </span>
+                  </span> */}
                   {games.platforms && (
                     <ul className="flex flex-wrap w-full text-xl text-white">
+                      <span className="text-xl text-white font-bold">
+                        Platforms:
+                      </span>
                       {games.platforms.map((platform) => (
                         <li
                           className="px-2 py-1 m-1 border border-cyan-600 rounded-md bg-purple-900/20"
@@ -530,7 +445,7 @@ function GamesList({
 
                 {/* Save to favourites button */}
                 <button
-                  className="absolute left-24 top-[7.5rem] rounded-lg bg-purple-700/80 text-3xl  text-white font-bold p-1 hover:scale-125 hover:bg-purple-500 px-2 border-purple-300 border-t-[1px] border-l-[1px] transition-all"
+                  className="absolute left-24 top-[7.5rem] rounded-full bg-gray-200/60 text-3xl  text-white font-bold p-1 hover:scale-125 hover:bg-yellow-300 px-2 border-white border-t-[1px] border-l-[1px] transition-all"
                   onClick={() => {
                     handleAddNewFav(
                       games.guid,
@@ -539,7 +454,7 @@ function GamesList({
                     );
                   }}
                 >
-                  💖
+                  💗
                 </button>
               </li>
             </>
@@ -617,6 +532,109 @@ function ErrorMessage({ error }) {
   );
 }
 
+function FavModal({
+  favGameObj,
+  searchByGuidToken,
+  setSearchByGuidToken,
+  setFavGameObj,
+  setShowFavList,
+}) {
+  function addURL(str) {
+    const url = "https://www.giantbomb.com";
+    // const regex = /"([^/]*)/g;
+    const regex = /href="\//g;
+    str = str.replace(regex, `<a target="_blank" href="${url}/`);
+    return str;
+  }
+  const games = favGameObj;
+  return (
+    <>
+      <dialog
+        className="flex flex-col backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
+        open={searchByGuidToken}
+        onClose={() => setSearchByGuidToken(false)}
+      >
+        <section className="grid grid-cols-1 grid-rows-[25rem] p-4 bg-gray-900/70 mt-4 max-h-screen sm:w-[70rem] relative rounded-lg">
+          <>
+            {games.image.original_url && (
+              <>
+                <div
+                  style={{
+                    background: `url(${games.image.original_url})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "top",
+                  }}
+                >
+                  {/* <img
+                className="h-full row-start-1 row-span-1 mb-3"
+                src={games.image.original_url}
+                alt={games.name}
+              /> */}
+                </div>
+                {/* <img
+                  className="w-1/4"
+                  src={games.image.original_url}
+                  alt={games.name}
+                /> */}
+              </>
+            )}
+            {games.description ? (
+              <article
+                className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
+                style={{ width: "100%" }}
+              >
+                {/* {console.log(games.description)} */}
+                <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-500">
+                  {games.name}
+                </h2>
+                <h2 className="text-3xl font-bold text-amber-100 mt-3">
+                  Quick Introduction
+                </h2>
+                {games.deck && (
+                  <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
+                    {games.deck}
+                  </p>
+                )}
+                <article className="sm:grid sm:grid-cols-2 sm:gap-3">
+                  {/* {Parser().parse(games.description)} */}
+                  {Parser().parse(addURL(games.description))}
+                </article>
+              </article>
+            ) : (
+              <p className="text-slate-300 text-2xl font-bold">
+                No description available.
+              </p>
+            )}
+            <button
+              className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none border-4 border-white rounded-2xl"
+              onClick={() => {
+                setFavGameObj(null);
+                setSearchByGuidToken(false);
+                setShowFavList(false);
+              }}
+            >
+              CLOSE DETAILS
+            </button>
+          </>
+        </section>
+        {/* {" "}
+        <p className="text-4xl text-white">{favGameObj.name}</p>;
+        <p className="text-2xl text-white">{favGameObj.deck}</p>;
+        <button
+          className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
+          onClick={() => {
+            setSearchByGuidToken(false);
+            setFavGameObj(null);
+            setShowFavList(false);
+          }}
+        >
+          CLOSE DETAILS
+        </button> */}
+      </dialog>
+    </>
+  );
+}
+
 // The games modal
 // The response from the API includes a description of many of the games in
 // HTML format. I found html-to-react on NPM to parse it. I need to learn it
@@ -644,11 +662,11 @@ function GameModal({
   return (
     <>
       <dialog
-        className="flex flex-col backdrop-blur-sm justify-start items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
+        className="flex flex-col backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
         open={showDetails}
         onClose={() => setShowDetails(false)}
       >
-        <section className="grid grid-cols-1 p-4 bg-gray-900/70 mt-4 h-screen sm:w-[70rem] relative">
+        <section className="grid grid-cols-1 grid-rows-[25rem] p-4 bg-gray-900/70 mt-4 max-h-screen sm:w-[70rem] relative">
           {gamesList?.map(
             (games) =>
               games.guid === gameGuid && (
@@ -662,15 +680,23 @@ function GameModal({
                     style={{ backgroundSize: "cover", position: "absolute" }}
                   /> */}
                   {games.image.original_url && (
-                    <img
-                      className="w-1/4 mb-3"
-                      src={games.image.original_url}
-                      alt={games.name}
-                    />
+                    <div
+                      style={{
+                        background: `url(${games.image.original_url})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "top",
+                      }}
+                    >
+                      {/* <img
+                        className="h-full row-start-1 row-span-1 mb-3"
+                        src={games.image.original_url}
+                        alt={games.name}
+                      /> */}
+                    </div>
                   )}
                   {games.description ? (
                     <article
-                      className="flex flex-col text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
+                      className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
                       style={{ width: "100%" }}
                     >
                       {/* {console.log(games.description)} */}
