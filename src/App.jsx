@@ -170,6 +170,18 @@ export default function App() {
       {error && <ErrorMessage error={error} />}
 
       {isLoading ? (
+        ""
+      ) : (
+        <PageCount
+          numItems={numItems}
+          page={page}
+          setPage={setPage}
+          query={query}
+          setIsPageClicked={setIsPageClicked}
+        />
+      )}
+
+      {isLoading ? (
         <Loader searchByGuidToken={searchByGuidToken} />
       ) : (
         <GamesList
@@ -183,29 +195,21 @@ export default function App() {
             onHandelDeleteFav={handelDeleteFav}
             onHandleSearchById={handleSearchById}
           />
-
-          {isLoading ? (
-            <Loader searchByGuidToken={searchByGuidToken} />
-          ) : (
-            <PageCount
-              numItems={numItems}
-              page={page}
-              setPage={setPage}
-              query={query}
-              setIsPageClicked={setIsPageClicked}
-            />
-          )}
         </GamesList>
       )}
-      <LowerPageCount>
-        <PageCount
-          numItems={numItems}
-          page={page}
-          setPage={setPage}
-          query={query}
-          setIsPageClicked={setIsPageClicked}
-        />
-      </LowerPageCount>
+      {isLoading ? (
+        ""
+      ) : (
+        <LowerPageCount>
+          <PageCount
+            numItems={numItems}
+            page={page}
+            setPage={setPage}
+            query={query}
+            setIsPageClicked={setIsPageClicked}
+          />
+        </LowerPageCount>
+      )}
 
       {gameGuid && showDetails && (
         <GameModal
