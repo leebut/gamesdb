@@ -139,7 +139,7 @@ export default function App() {
             if (!res.ok) throw new Error("Could not fetch the game.");
             const data = await res.json();
             if (!data) throw new Error("Nothing to show.");
-            console.log(data.results);
+            // console.log(data.results);
             setFavGameObj(data.results);
           } catch (err) {
             alert(err.message);
@@ -158,6 +158,7 @@ export default function App() {
   return (
     <>
       <Header>
+        <Logo />
         <SearchInput onHandleQueryInput={handleQueryInput} />
         <FavouritesButton
           favGamesList={favGamesList}
@@ -169,7 +170,7 @@ export default function App() {
       {error && <ErrorMessage error={error} />}
 
       {isLoading ? (
-        <Loader />
+        <Loader searchByGuidToken={searchByGuidToken} />
       ) : (
         <GamesList
           gamesList={gamesList}
@@ -182,13 +183,18 @@ export default function App() {
             onHandelDeleteFav={handelDeleteFav}
             onHandleSearchById={handleSearchById}
           />
-          <PageCount
-            numItems={numItems}
-            page={page}
-            setPage={setPage}
-            query={query}
-            setIsPageClicked={setIsPageClicked}
-          />
+
+          {isLoading ? (
+            <Loader searchByGuidToken={searchByGuidToken} />
+          ) : (
+            <PageCount
+              numItems={numItems}
+              page={page}
+              setPage={setPage}
+              query={query}
+              setIsPageClicked={setIsPageClicked}
+            />
+          )}
         </GamesList>
       )}
       <LowerPageCount>
@@ -231,9 +237,15 @@ export default function App() {
 
 function Header({ children }) {
   return (
-    <header className="relative flex gap-9 justify-center items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
+    <header className="relative flex flex-wrap gap-9 justify-center items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
       {children}
     </header>
+  );
+}
+
+function Logo() {
+  return (
+    <h2 className="text-4xl text-white font-bold">Games...Games...Games</h2>
   );
 }
 
@@ -263,15 +275,14 @@ function SearchInput({ onHandleQueryInput }) {
 function FavouritesButton({ favGamesList, onHandleShowFavList }) {
   return (
     <button
-      className="bg-gray-600 p-2 rounded-lg border-2 border-white hover:border-2 hover:border-yellow-300 transition-all"
+      className="bg-gray-600 p-2 rounded-lg border-2 border-yellow-300 hover:border-2 hover:border-white transition-all"
       onClick={onHandleShowFavList}
     >
-      <span className="text-3xl">💗</span>&nbsp;
+      <span className="text-4xl">💗</span>&nbsp;
       <span className="font-bold text-white">
-        <sup className="text-xl bg-red-800 rounded-full px-2">
+        <sup className="text-2xl bg-red-800 rounded-full px-2 border border-red-300">
           {favGamesList.length}
         </sup>
-        &nbsp; favourites
       </span>
     </button>
   );
@@ -286,7 +297,7 @@ function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
   return (
     <ul
       id="favourite-games"
-      className="fixed top-30 left-0 text-2xl text-gray-300 z-50 w-max pr-1 bg-gray-900 slide-out"
+      className="fixed top-30 left-0 text-2xl text-gray-300 z-50 w-max max-h-[80vh] selection:pr-1 bg-gray-900 slide-out overflow-y-scroll"
     >
       {favGamesList?.map((game) => (
         <li
@@ -434,7 +445,7 @@ function GamesList({
                 {/* Open and close modal button */}
                 {games.description && (
                   <button
-                    className="absolute flex justify-center items-center text-xl text-white font-bold  bg-sky-700/80 h-10 px-2 right-1 top-1 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-sky-400 hover:bg-sky-600 shadow-md shadow-black transition-all"
+                    className="absolute flex justify-center items-center text-xl text-white font-bold  bg-green-700/80 h-10 px-2 right-1 bottom-2 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-green-400 hover:bg-green-600 shadow-md shadow-black transition-all"
                     onClick={() => {
                       onHandleShowDetails(games.guid);
                     }}
@@ -445,7 +456,7 @@ function GamesList({
 
                 {/* Save to favourites button */}
                 <button
-                  className="absolute left-24 top-[7.5rem] rounded-full bg-gray-200/60 text-3xl  text-white font-bold p-1 hover:scale-125 hover:bg-yellow-300 px-2 border-white border-t-[1px] border-l-[1px] transition-all"
+                  className="absolute left-[3.5rem] top-16 sm:left-[6.5rem] sm:top-[7.5rem] rounded-full bg-yellow-200/80 text-3xl  text-white font-bold p-1 hover:scale-125 hover:bg-yellow-300 px-2 border-white border-t-[2px] border-l-[2px] transition-all"
                   onClick={() => {
                     handleAddNewFav(
                       games.guid,
@@ -476,11 +487,11 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
       ) : (
         <>
           {numItems === 1 ? (
-            <p className="text-2xl text-gray-300 font-bold">
+            <p className="ml-3 text-2xl text-gray-300 font-bold">
               {totalGames} game found containing the word(s) {query}.
             </p>
           ) : (
-            <p className="text-2xl text-gray-300 font-bold">
+            <p className="ml-3 text-2xl text-gray-300 font-bold">
               {totalGames} games found containing the word(s) {query}.
             </p>
           )}
@@ -520,8 +531,19 @@ function LowerPageCount({ children }) {
   );
 }
 
-function Loader() {
-  return <h2 className="text-4xl text-white">Loading the games list....</h2>;
+function Loader({ searchByGuidToken }) {
+  return (
+    <>
+      <div className="flex justify-center w-screen">
+        {!searchByGuidToken ? (
+          <h2 className="text-4xl text-white">Loading the games list....</h2>
+        ) : (
+          <h2 className="text-4xl text-white">Loading game details....</h2>
+        )}
+      </div>
+      ;
+    </>
+  );
 }
 
 function ErrorMessage({ error }) {
@@ -541,9 +563,14 @@ function FavModal({
 }) {
   function addURL(str) {
     const url = "https://www.giantbomb.com";
-    // const regex = /"([^/]*)/g;
-    const regex = /href="\//g;
+
+    const regex = /<a href="\//g;
+    const regex2 = /<a href="..\/..\//g;
+    const regex3 = /<a href="\/\//g;
+
+    str = str.replace(regex3, `<a target="_blank" href="https://`);
     str = str.replace(regex, `<a target="_blank" href="${url}/`);
+    str = str.replace(regex2, `<a target="_blank" href="${url}/`);
     return str;
   }
   const games = favGameObj;
@@ -654,8 +681,15 @@ function GameModal({
   function addURL(str) {
     const url = "https://www.giantbomb.com";
     // const regex = /"([^/]*)/g;
-    const regex = /href="\//g;
+    // const agg = /href="(\)|()..\/..\/)|(\/\/)/g;
+    const regex = /<a href="\//g;
+    const regex2 = /<a href="..\/..\//g;
+    const regex3 = /<a href="\/\//g;
+
+    str = str.replace(regex3, `<a target="_blank" href="https://`);
     str = str.replace(regex, `<a target="_blank" href="${url}/`);
+    str = str.replace(regex2, `<a target="_blank" href="${url}/`);
+
     return str;
   }
 
@@ -671,6 +705,7 @@ function GameModal({
             (games) =>
               games.guid === gameGuid && (
                 <>
+                  {/* {console.log(games.description)} */}
                   {/* BG IMAGE */}
                   {/* <img
                     key={games.id}
@@ -741,13 +776,22 @@ function GameModal({
 
 function PageFooter() {
   return (
-    <section className="flex flex-col items-center mx-auto my-4 justify-center text-2xl text-white p-2 border border-green-400 rounded-md w-4/6">
+    <section className="flex flex-col items-start mx-auto my-4 justify-center text-2xl text-white p-2 border border-green-400 rounded-md sm:w-3/6">
       <p>This website is one of my learning projects for learning React.</p>
       <p>
         Data is provided by the{" "}
-        <a target="_blank" rel="noreferrer" href="https://giantbomb.com/api">
-          Giant Bomb API
+        <a
+          className="font-bold"
+          target="_blank"
+          rel="noreferrer"
+          href="https://giantbomb.com/api"
+        >
+          Giant Bomb API.
         </a>
+      </p>
+      <p>
+        The information shown for each game page is supplied as a big HTML
+        object. I have styled is the best I can with my current knowledge.
       </p>
     </section>
   );
