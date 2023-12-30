@@ -54,6 +54,13 @@ article ul {
 ul li {
   margin: 0.2rem 0;
 }
+article figure {
+  width: 40%;
+  margin: 0.5rem 0;
+}
+figcaption {
+  font-style: italic;
+}
 article table {
   grid-column: 1 / -1;
   border: solid 1px rgba(0, 180, 180, 0.5);
@@ -61,20 +68,25 @@ article table {
 }
 article th {
   font-size: 1.5rem;
+  height: 4rem;
   padding: 0.2rem 0.5rem;
   background: rgba(66, 66, 66, 0.4);
 }
 article table td {
-  border: solid 1px rgba(0, 180, 180, 0.5);
-  padding: 0.2rem 0.5rem;
+  display: table-cell;
+  border-top: solid 1px rgba(0, 180, 180, 0.3);
+  padding: 0.5rem 0.5rem;
   font-size: 1.4rem;
 }
-article figure {
-  width: 40%;
-  margin: 0.5rem 0;
+article table p {
+  grid-column: unset;
+  margin-bottom: unset;
+  border: unset;
+  background: unset;
+  padding: unset;
 }
-figcaption {
-  font-style: italic;
+article table figure {
+  max-width: 25rem;
 }
 
 .slide-out {

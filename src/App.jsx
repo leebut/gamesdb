@@ -197,18 +197,17 @@ export default function App() {
           />
         </GamesList>
       )}
+
       {isLoading ? (
         ""
       ) : (
-        <LowerPageCount>
-          <PageCount
-            numItems={numItems}
-            page={page}
-            setPage={setPage}
-            query={query}
-            setIsPageClicked={setIsPageClicked}
-          />
-        </LowerPageCount>
+        <PageCount
+          numItems={numItems}
+          page={page}
+          setPage={setPage}
+          query={query}
+          setIsPageClicked={setIsPageClicked}
+        />
       )}
 
       {gameGuid && showDetails && (
@@ -249,7 +248,12 @@ function Header({ children }) {
 
 function Logo() {
   return (
-    <h2 className="text-4xl text-white font-bold">Games...Games...Games</h2>
+    <div className="sm:mr-[10rem] max-w-[30rem]">
+      <figure>
+        <img src="logo.png" alt="Logo" />
+      </figure>
+    </div>
+    // <h2 className="text-4xl text-white font-bold">Games...Games...Games</h2>
   );
 }
 
@@ -263,7 +267,7 @@ function SearchInput({ onHandleQueryInput }) {
 
   return (
     <input
-      className="text-2xl bg-gray-500 text-gray-300 p-3 h-max outline-none border-2 border-cyan-300 rounded-full placeholder:text-white focus:bg-sky-600 focus:text-white transition-all"
+      className="text-2xl sm:mr-[20rem] bg-gray-500 text-gray-300 p-3 h-max outline-none border-2 border-cyan-300 rounded-full placeholder:text-white focus:bg-sky-600 focus:text-white transition-all"
       type="text"
       name="query"
       id="query"
@@ -388,7 +392,7 @@ function GamesList({
                   />
                 )}
                 <div>
-                  <p className="text-3xl sm:text-4xl text-white">
+                  <p className="text-3xl sm:text-4xl text-gray-300">
                     <span className="block py-2 pl-2 font-bold bg-gray-900/50 rounded-md border border-gray-500">
                       {games.name ? games.name : "No Title"}
                     </span>
@@ -489,7 +493,7 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
       {!numItems ? (
         ""
       ) : (
-        <>
+        <div className="w-full flex flex-col items-center">
           {numItems === 1 ? (
             <p className="ml-3 text-2xl text-gray-300 font-bold">
               {totalGames} game found containing the word(s) {query}.
@@ -523,15 +527,9 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
               )
             )}
           </ul>
-        </>
+        </div>
       )}
     </>
-  );
-}
-
-function LowerPageCount({ children }) {
-  return (
-    <section className="flex flex-col mt-3 items-center">{children}</section>
   );
 }
 
