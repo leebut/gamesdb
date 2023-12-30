@@ -493,7 +493,7 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
       {!numItems ? (
         ""
       ) : (
-        <div className="w-full flex flex-col items-center">
+        <div className="w-4/6 flex flex-col items-center mx-auto">
           {numItems === 1 ? (
             <p className="ml-3 text-2xl text-gray-300 font-bold">
               {totalGames} game found containing the word(s) {query}.
@@ -566,13 +566,13 @@ function FavModal({
   function addURL(str) {
     const url = "https://www.giantbomb.com";
 
-    const regex = /<a href="\//g;
-    const regex2 = /<a href="..\/..\//g;
-    const regex3 = /<a href="\/\//g;
+    const regex = /href="\//g;
+    const regex2 = /href="..\/..\//g;
+    const regex3 = /href="\/\//g;
 
-    str = str.replace(regex3, `<a target="_blank" href="https://`);
-    str = str.replace(regex, `<a target="_blank" href="${url}/`);
-    str = str.replace(regex2, `<a target="_blank" href="${url}/`);
+    str = str.replace(regex3, `target="_blank" href="https://`);
+    str = str.replace(regex, `target="_blank" href="${url}/`);
+    str = str.replace(regex2, `target="_blank" href="${url}/`);
     return str;
   }
   const games = favGameObj;
@@ -684,13 +684,13 @@ function GameModal({
     const url = "https://www.giantbomb.com";
     // const regex = /"([^/]*)/g;
     // const agg = /href="(\)|()..\/..\/)|(\/\/)/g;
-    const regex = /<a href="\//g;
-    const regex2 = /<a href="..\/..\//g;
-    const regex3 = /<a href="\/\//g;
+    const regex = /href="\//g;
+    const regex2 = /href="..\/..\//g;
+    const regex3 = /href="\/\//g;
 
-    str = str.replace(regex3, `<a target="_blank" href="https://`);
-    str = str.replace(regex, `<a target="_blank" href="${url}/`);
-    str = str.replace(regex2, `<a target="_blank" href="${url}/`);
+    str = str.replace(regex3, `target="_blank" href="https://`);
+    str = str.replace(regex, `target="_blank" href="${url}/`);
+    str = str.replace(regex2, `target="_blank" href="${url}/`);
 
     return str;
   }
