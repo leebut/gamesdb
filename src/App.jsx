@@ -240,7 +240,7 @@ export default function App() {
 
 function Header({ children }) {
   return (
-    <header className="relative flex flex-wrap gap-9 justify-center items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
+    <header className="fixed z-50 bg-gray-700/90 flex flex-wrap gap-9 justify-center items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
       {children}
     </header>
   );
@@ -330,7 +330,15 @@ function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
 function LandingPage() {
   return (
     <>
-      <section className="grid grid-cols-12 border border-white">
+      <section
+        className="grid grid-cols-12 h-screen border border-white"
+        style={{
+          background: `url(andres-iga-7XKkJVw1d8c-unsplash.jpg)`,
+          backgroundAttachment: "fixed",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <article className="col-start-4 col-span-6 bg-yellow-600 h-10"></article>
       </section>
       <h2 className="text-4xl font-bold text-white">Landing Page</h2>;
@@ -691,7 +699,6 @@ function GameModal({
     str = str.replace(regex3, `target="_blank" href="https://`);
     str = str.replace(regex, `target="_blank" href="${url}/`);
     str = str.replace(regex2, `target="_blank" href="${url}/`);
-
     return str;
   }
 
