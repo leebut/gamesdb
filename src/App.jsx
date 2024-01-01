@@ -9,6 +9,7 @@ const resources = "game";
 // const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
 
 export default function App() {
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [gamesList, setGamesList] = useState([]);
   const [numItems, setNumItems] = useState("");
   const [page, setPage] = useState(1);
@@ -29,6 +30,18 @@ export default function App() {
     }
     return JSON.parse(storedGames);
   });
+
+  // const headerRef = useRef(null);
+  // Get the header height and set the margin-top below that height.
+  // useEffect(() => {
+  //   if (headerRef.current) {
+  //     // const headerEl = document.getElementById("page-header");
+  //     // const headerHeight = headerEl.offsetHeight;
+
+  //     const headerHeight = headerRef.current.offsetHeight;
+  //     setHeaderHeight(headerHeight);
+  //   }
+  // }, []);
 
   // URL to fetch the games list based on the query state.
   const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}&page=${page}`;
@@ -157,7 +170,7 @@ export default function App() {
 
   return (
     <>
-      <Header>
+      <Header setHeaderHeight={setHeaderHeight}>
         <Logo />
         <SearchInput onHandleQueryInput={handleQueryInput} />
         <FavouritesButton
@@ -166,7 +179,15 @@ export default function App() {
         />
       </Header>
 
-      {!query && <LandingPage />}
+      {!query && (
+        <LandingPage headerHeight={headerHeight}>
+          <FavGames
+            favGamesList={favGamesList}
+            onHandelDeleteFav={handelDeleteFav}
+            onHandleSearchById={handleSearchById}
+          />
+        </LandingPage>
+      )}
       {error && <ErrorMessage error={error} />}
 
       {isLoading ? (
@@ -178,17 +199,22 @@ export default function App() {
           setPage={setPage}
           query={query}
           setIsPageClicked={setIsPageClicked}
+          headerHeight={headerHeight}
         />
       )}
 
       {isLoading ? (
-        <Loader searchByGuidToken={searchByGuidToken} />
+        <Loader
+          searchByGuidToken={searchByGuidToken}
+          headerHeight={headerHeight}
+        />
       ) : (
         <GamesList
           gamesList={gamesList}
           query={query}
           onHandleShowDetails={handleShowDetails}
           onHandleAddFav={handleAddFav}
+          headerHeight={headerHeight}
         >
           <FavGames
             favGamesList={favGamesList}
@@ -207,6 +233,7 @@ export default function App() {
           setPage={setPage}
           query={query}
           setIsPageClicked={setIsPageClicked}
+          headerHeight={headerHeight}
         />
       )}
 
@@ -238,9 +265,26 @@ export default function App() {
 // Display the searchbar.
 // This also contains the favourites list of games dropdown list.
 
-function Header({ children }) {
+function Header({ children, setHeaderHeight }) {
+  const headerRef = useRef(null);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      if (headerRef.current) {
+        // alert(headerRef.current.offsetHeight);
+        const headerHeight = headerRef.current.offsetHeight;
+        setHeaderHeight(headerHeight);
+      }
+    }, 100);
+    return () => clearTimeout(timerId);
+  }, [setHeaderHeight]);
+
   return (
-    <header className="fixed z-50 bg-gray-700/90 flex flex-wrap gap-9 justify-center items-center w-screen border-b-2 mb-5 border-b-gray-500 p-5">
+    <header
+      id="page-header"
+      className="fixed top-0 z-50 bg-gray-700/90 flex flex-wrap gap-9 justify-center items-center w-screen border-b-2 border-b-gray-500 p-5"
+      ref={headerRef}
+    >
       {children}
     </header>
   );
@@ -267,7 +311,7 @@ function SearchInput({ onHandleQueryInput }) {
 
   return (
     <input
-      className="text-2xl sm:mr-[20rem] bg-gray-500 text-gray-300 p-3 h-max outline-none border-2 border-cyan-300 rounded-full placeholder:text-white focus:bg-sky-600 focus:text-white transition-all"
+      className="text-2xl sm:mr-[20rem] bg-gray-500 text-gray-300 p-3 outline-none border-2 border-cyan-300 rounded-full placeholder:text-white focus:bg-sky-600 focus:text-white transition-all"
       type="text"
       name="query"
       id="query"
@@ -305,7 +349,7 @@ function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
   return (
     <ul
       id="favourite-games"
-      className="fixed top-30 left-0 text-2xl text-gray-300 z-50 w-max max-h-[80vh] selection:pr-1 bg-gray-900 slide-out overflow-y-scroll"
+      className="fixed top-32 left-0 text-2xl text-gray-300 z-50 w-max max-h-[80vh] selection:pr-1 bg-gray-900 slide-out overflow-y-scroll"
     >
       {favGamesList?.map((game) => (
         <li
@@ -327,21 +371,27 @@ function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
 }
 
 // Landing page component for when the query input is empty.
-function LandingPage() {
+function LandingPage({ children, headerHeight }) {
   return (
     <>
       <section
-        className="grid grid-cols-12 h-screen border border-white"
+        className="relative flex flex-col items-center justify-center h-screen"
         style={{
           background: `url(andres-iga-7XKkJVw1d8c-unsplash.jpg)`,
           backgroundAttachment: "fixed",
           backgroundSize: "cover",
           backgroundPosition: "center",
+          marginTop: `${headerHeight}px`,
         }}
       >
-        <article className="col-start-4 col-span-6 bg-yellow-600 h-10"></article>
+        {children}
+        <h2 className="text-7xl leading-tight sm:leading-snug sm:text-9xl font-bold sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl">
+          Middle Earth or
+          <br />
+          deep space?
+        </h2>
+        ;
       </section>
-      <h2 className="text-4xl font-bold text-white">Landing Page</h2>;
     </>
   );
 }
@@ -356,6 +406,7 @@ function GamesList({
   onHandleShowDetails,
   onHandleAddFav,
   children,
+  headerHeight,
 }) {
   function handleAddNewFav(guid, name, icon) {
     const newFav = {
@@ -375,11 +426,16 @@ function GamesList({
   }
 
   return (
-    <section className="relative flex flex-col items-center">
+    <section className="relative flex flex-col items-center mt-8">
       {children}
 
       {gamesList.length === 0 && query && (
-        <h2 className="text-white text-2xl">No games found matching {query}</h2>
+        <h2
+          className="text-white text-2xl"
+          style={{ marginTop: headerHeight + 20 + "px" }}
+        >
+          No games found matching {query}
+        </h2>
       )}
       {!query ? (
         <h2 className="text-white text-2xl">Enter a game name to search.</h2>
@@ -492,7 +548,14 @@ function GamesList({
   );
 }
 
-function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
+function PageCount({
+  numItems,
+  page,
+  setPage,
+  query,
+  setIsPageClicked,
+  headerHeight,
+}) {
   const totalGames = numItems;
   const numPages = Math.ceil(numItems / 10);
 
@@ -501,7 +564,10 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
       {!numItems ? (
         ""
       ) : (
-        <div className="w-4/6 flex flex-col items-center mx-auto">
+        <div
+          className="w-4/6 flex flex-col items-center mx-auto"
+          style={{ marginTop: headerHeight + 20 + "px" }}
+        >
           {numItems === 1 ? (
             <p className="ml-3 text-2xl text-gray-300 font-bold">
               {totalGames} game found containing the word(s) {query}.
@@ -541,10 +607,13 @@ function PageCount({ numItems, page, setPage, query, setIsPageClicked }) {
   );
 }
 
-function Loader({ searchByGuidToken }) {
+function Loader({ searchByGuidToken, headerHeight }) {
   return (
     <>
-      <div className="flex justify-center w-screen">
+      <div
+        className="flex justify-center w-screen"
+        style={{ marginTop: headerHeight + 20 + "px" }}
+      >
         {!searchByGuidToken ? (
           <h2 className="text-4xl text-white">Loading the games list....</h2>
         ) : (
@@ -587,7 +656,7 @@ function FavModal({
   return (
     <>
       <dialog
-        className="flex flex-col backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
+        className="flex flex-col z-[100] backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
         open={searchByGuidToken}
         onClose={() => setSearchByGuidToken(false)}
       >
@@ -705,7 +774,7 @@ function GameModal({
   return (
     <>
       <dialog
-        className="flex flex-col backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
+        className="flex flex-col z-[100] backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
         open={showDetails}
         onClose={() => setShowDetails(false)}
       >
@@ -766,7 +835,7 @@ function GameModal({
                     </p>
                   )}
                   <button
-                    className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none "
+                    className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none border-4 border-white rounded-2xl"
                     onClick={() => {
                       setShowDetails(false);
                       setGameGuid(null);
