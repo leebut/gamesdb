@@ -179,7 +179,7 @@ export default function App() {
         />
       </Header>
 
-      {!query && (
+      {gamesList.length === 0 && !isLoading && query.length === 0 && (
         <LandingPage headerHeight={headerHeight}>
           <FavGames
             favGamesList={favGamesList}
@@ -257,7 +257,6 @@ export default function App() {
           setShowFavList={setShowFavList}
         />
       )}
-      <PageFooter />
     </>
   );
 }
@@ -375,13 +374,14 @@ function LandingPage({ children, headerHeight }) {
   return (
     <>
       <section
-        className="relative flex flex-col items-center justify-center h-screen"
+        className="relative flex flex-col items-center justify-center"
         style={{
           background: `url(andres-iga-7XKkJVw1d8c-unsplash.jpg)`,
           backgroundAttachment: "fixed",
           backgroundSize: "cover",
           backgroundPosition: "center",
           marginTop: `${headerHeight}px`,
+          height: `calc(100vh - ${headerHeight}px)`,
         }}
       >
         {children}
@@ -390,7 +390,10 @@ function LandingPage({ children, headerHeight }) {
           <br />
           deep space?
         </h2>
-        ;
+
+        <div className="absolute bottom-0 bg-gray-800 w-screen py-5">
+          <PageFooter />
+        </div>
       </section>
     </>
   );
@@ -438,7 +441,8 @@ function GamesList({
         </h2>
       )}
       {!query ? (
-        <h2 className="text-white text-2xl">Enter a game name to search.</h2>
+        // <h2 className="text-white text-2xl">Enter a game name to search.</h2>
+        ""
       ) : (
         <ul className="grid grid-cols-1 gap-3 sm:gap-4 mt-5 w-11/12 sm:w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(46rem,46rem))] justify-center">
           {/* md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] */}
@@ -874,3 +878,26 @@ function PageFooter() {
     </section>
   );
 }
+
+// function PageFooter() {
+//   return (
+//     <section className="flex flex-col items-start mx-auto my-4 justify-center text-2xl text-white p-2 border border-green-400 rounded-md sm:w-3/6">
+//       <p>This website is one of my learning projects for learning React.</p>
+//       <p>
+//         Data is provided by the{" "}
+//         <a
+//           className="font-bold"
+//           target="_blank"
+//           rel="noreferrer"
+//           href="https://giantbomb.com/api"
+//         >
+//           Giant Bomb API.
+//         </a>
+//       </p>
+//       <p>
+//         The information shown for each game page is supplied as a big HTML
+//         object. I have styled is the best I can with my current knowledge.
+//       </p>
+//     </section>
+//   );
+// }
