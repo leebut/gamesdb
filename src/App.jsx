@@ -17,6 +17,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
+  const [oldQuery, setOldQuery] = useState("");
   const [gameId, setGameId] = useState(null);
   const [gameGuid, setGameGuid] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -77,7 +78,9 @@ export default function App() {
           // console.log(data.results);
           setGamesList(data.results);
           setNumItems(data.number_of_total_results);
+          oldQuery !== query ? setPage("1") : setPage((page) => page);
           isPageClicked ? setPage((page) => page) : setPage("1");
+          setOldQuery(query);
         } catch (err) {
           alert(err.message);
           setError(err.message);
