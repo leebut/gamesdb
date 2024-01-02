@@ -32,18 +32,6 @@ export default function App() {
     return JSON.parse(storedGames);
   });
 
-  // const headerRef = useRef(null);
-  // Get the header height and set the margin-top below that height.
-  // useEffect(() => {
-  //   if (headerRef.current) {
-  //     // const headerEl = document.getElementById("page-header");
-  //     // const headerHeight = headerEl.offsetHeight;
-
-  //     const headerHeight = headerRef.current.offsetHeight;
-  //     setHeaderHeight(headerHeight);
-  //   }
-  // }, []);
-
   // URL to fetch the games list based on the query state.
   const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}&page=${page}`;
 
@@ -78,8 +66,8 @@ export default function App() {
           // console.log(data.results);
           setGamesList(data.results);
           setNumItems(data.number_of_total_results);
-          oldQuery !== query ? setPage("1") : setPage((page) => page);
-          isPageClicked ? setPage((page) => page) : setPage("1");
+          oldQuery !== query ? setPage(1) : setPage((page) => Number(page));
+          isPageClicked ? setPage((page) => Number(page)) : setPage(1);
           setOldQuery(query);
         } catch (err) {
           alert(err.message);
@@ -91,7 +79,7 @@ export default function App() {
       fetchGames();
     }, 1000);
     return () => clearTimeout(timerId);
-  }, [query, page, searchUrl, setGamesList, setError, isPageClicked]);
+  }, [query, page, searchUrl, setGamesList, setError, isPageClicked, oldQuery]);
 
   // Save game to local storage.
   useEffect(
@@ -588,7 +576,6 @@ function PageCount({
           <ul className="flex flex-wrap">
             {Array.from({ length: numPages }, (_, i) => i + 1).map(
               (eachPage, i) => (
-                // <p key={page.i}>page: {page}</p>
                 <li key={i}>
                   <button
                     className={
@@ -598,7 +585,7 @@ function PageCount({
                     }
                     value={eachPage}
                     onClick={(e) => {
-                      setPage(e.target.value);
+                      setPage(Number(e.target.value));
                       setIsPageClicked(true);
                     }}
                   >
