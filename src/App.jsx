@@ -124,7 +124,7 @@ export default function App() {
 
   function handleSearchById(guid) {
     setSearchByGuidToken(true);
-    alert(`GUID HANDLE SEARCH: ${guid}`);
+    // alert(`GUID HANDLE SEARCH: ${guid}`);
     setGameGuid(guid);
   }
 
@@ -305,7 +305,7 @@ function SearchInput({ onHandleQueryInput }) {
       type="text"
       name="query"
       id="query"
-      placeholder="Search games..."
+      placeholder="👀🔎 Search games..."
       ref={searchInput}
       onChange={(e) => {
         onHandleQueryInput(e.target.value);
