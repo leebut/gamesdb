@@ -177,6 +177,7 @@ export default function App() {
             onHandelDeleteFav={handelDeleteFav}
             onHandleSearchById={handleSearchById}
           />
+          <LandingHeaderSection headerHeight={headerHeight} />
         </LandingPage>
       )}
       {error && <ErrorMessage error={error} />}
@@ -261,7 +262,6 @@ function Header({ children, setHeaderHeight }) {
   useEffect(() => {
     const timerId = setTimeout(() => {
       if (headerRef.current) {
-        // alert(headerRef.current.offsetHeight);
         const headerHeight = headerRef.current.offsetHeight;
         setHeaderHeight(headerHeight);
       }
@@ -272,7 +272,7 @@ function Header({ children, setHeaderHeight }) {
   return (
     <header
       id="page-header"
-      className="fixed top-0 z-50 bg-gray-700/90 flex flex-wrap gap-9 justify-center items-center w-screen border-b-2 border-b-gray-500 p-5"
+      className="fixed top-0 z-50 bg-gray-700/70 flex flex-wrap gap-9 justify-center items-center w-screen border-b-2 border-b-gray-500 p-5"
       ref={headerRef}
     >
       {children}
@@ -305,7 +305,7 @@ function SearchInput({ onHandleQueryInput }) {
       type="text"
       name="query"
       id="query"
-      placeholder="Search query..."
+      placeholder="Search games..."
       ref={searchInput}
       onChange={(e) => {
         onHandleQueryInput(e.target.value);
@@ -365,31 +365,46 @@ function LandingPage({ children, headerHeight }) {
   return (
     <>
       <section
-        className="relative flex flex-col items-center justify-center"
+        className="relative flex h-screen flex-col items-center justify-center"
         style={{
           background: `url(landing_bg.jpg)`,
           backgroundAttachment: "fixed",
           backgroundSize: "cover",
-          backgroundPosition: "center,center",
-          marginTop: `${headerHeight}px`,
-          height: `calc(100vh - ${headerHeight}px)`,
+          backgroundPosition: "bottom center",
+          paddingTop: `${headerHeight}px`,
+          // height: `calc(100vh - ${headerHeight}px)`,
         }}
       >
         {children}
-        <h2
-          className="text-7xl sm:text-9xl leading-tight sm:leading-snug font-bold sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
+        {/* <h2
+          className="text-7xl sm:text-8xl leading-tight sm:leading-snug font-bold sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
           style={{ transform: `translateY(-${headerHeight}px)` }}
         >
-          Middle Earth or
+          Platform, FPS,
           <br />
-          deep space?
-        </h2>
+          MOBA...?
+        </h2> */}
 
-        <div className="absolute bottom-0 bg-gray-800 w-screen py-5">
+        <div className="absolute bottom-0 bg-gray-800/70 w-screen py-5">
           <PageFooter />
         </div>
       </section>
     </>
+  );
+}
+
+function LandingHeaderSection({ headerHeight, onHandleQueryInput }) {
+  return (
+    <div
+      className="sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
+      style={{ transform: `translateY(-${headerHeight}px)` }}
+    >
+      <h2 className="text-7xl sm:text-8xl leading-tight sm:leading-snug font-bold">
+        Platform, FPS,
+        <br />
+        MOBA...?
+      </h2>
+    </div>
   );
 }
 
@@ -851,7 +866,7 @@ function GameModal({
 
 function PageFooter() {
   return (
-    <section className="flex flex-col items-start mx-auto my-4 justify-center text-2xl text-white p-2 border border-green-400 rounded-md sm:w-3/6">
+    <section className="flex w-11/12 sm:w-5/12 flex-col items-start mx-auto my-4 justify-center text-2xl text-white p-2 border border-green-400 rounded-md">
       <p>This website is one of my learning projects for learning React.</p>
       <p>
         Data is provided by the{" "}
@@ -864,33 +879,6 @@ function PageFooter() {
           Giant Bomb API.
         </a>
       </p>
-      <p>
-        The information shown for each game page is supplied as a big HTML
-        object. I have styled is the best I can with my current knowledge.
-      </p>
     </section>
   );
 }
-
-// function PageFooter() {
-//   return (
-//     <section className="flex flex-col items-start mx-auto my-4 justify-center text-2xl text-white p-2 border border-green-400 rounded-md sm:w-3/6">
-//       <p>This website is one of my learning projects for learning React.</p>
-//       <p>
-//         Data is provided by the{" "}
-//         <a
-//           className="font-bold"
-//           target="_blank"
-//           rel="noreferrer"
-//           href="https://giantbomb.com/api"
-//         >
-//           Giant Bomb API.
-//         </a>
-//       </p>
-//       <p>
-//         The information shown for each game page is supplied as a big HTML
-//         object. I have styled is the best I can with my current knowledge.
-//       </p>
-//     </section>
-//   );
-// }
