@@ -367,16 +367,19 @@ function LandingPage({ children, headerHeight }) {
       <section
         className="relative flex flex-col items-center justify-center"
         style={{
-          background: `url(andres-iga-7XKkJVw1d8c-unsplash.jpg)`,
+          background: `url(landing_bg.jpg)`,
           backgroundAttachment: "fixed",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "center,center",
           marginTop: `${headerHeight}px`,
           height: `calc(100vh - ${headerHeight}px)`,
         }}
       >
         {children}
-        <h2 className="text-7xl leading-tight sm:leading-snug sm:text-9xl font-bold sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl">
+        <h2
+          className="text-7xl sm:text-9xl leading-tight sm:leading-snug font-bold sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
+          style={{ transform: `translateY(-${headerHeight}px)` }}
+        >
           Middle Earth or
           <br />
           deep space?
