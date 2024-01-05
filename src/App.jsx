@@ -11,6 +11,7 @@ const resources = "game";
 export default function App() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [gamesList, setGamesList] = useState([]);
+  const [gameTitle, setGameTitle] = useState("Games Database");
   const [numItems, setNumItems] = useState("");
   const [page, setPage] = useState(1);
   const [isPageClicked, setIsPageClicked] = useState(false);
@@ -44,6 +45,11 @@ export default function App() {
       return;
     }
   }, [query, setNumItems, setGamesList, setPage]);
+
+  // Set the page title as the game title.
+  useEffect(() => {
+    document.title = gameTitle;
+  }, [gameTitle]);
 
   // Fetch the games list.
   useEffect(() => {
@@ -104,8 +110,9 @@ export default function App() {
     // };
   }
 
-  function handleShowDetails(id) {
+  function handleShowDetails(id, title) {
     setGameGuid(id);
+    setGameTitle(title);
     setShowDetails(true);
   }
 
@@ -212,6 +219,7 @@ export default function App() {
             favGamesList={favGamesList}
             onHandelDeleteFav={handelDeleteFav}
             onHandleSearchById={handleSearchById}
+            setGameTitle={setGameTitle}
           />
         </GamesList>
       )}
@@ -236,6 +244,7 @@ export default function App() {
           gameGuid={gameGuid}
           setGameGuid={setGameGuid}
           setGameId={setGameId}
+          setGameTitle={setGameTitle}
           showDetails={showDetails}
           setShowDetails={setShowDetails}
         />
@@ -247,6 +256,7 @@ export default function App() {
           searchByGuidToken={searchByGuidToken}
           setSearchByGuidToken={setSearchByGuidToken}
           setShowFavList={setShowFavList}
+          setGameTitle={setGameTitle}
         />
       )}
     </>
@@ -334,7 +344,12 @@ function FavouritesButton({ favGamesList, onHandleShowFavList }) {
 //   return <p className="text-white text-4xl">{favGameObj.name}</p>;
 // }
 
-function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
+function FavGames({
+  favGamesList,
+  onHandelDeleteFav,
+  onHandleSearchById,
+  setGameTitle,
+}) {
   // console.log(favGamesList);
   return (
     <ul
@@ -348,7 +363,10 @@ function FavGames({ favGamesList, onHandelDeleteFav, onHandleSearchById }) {
         >
           <button
             className="grid grid-cols-[1fr_6fr] gap-x-2 w-full items-center"
-            onClick={() => onHandleSearchById(game.guid)}
+            onClick={() => {
+              setGameTitle(game.name);
+              onHandleSearchById(game.guid);
+            }}
           >
             <img className="w-12 h-12" src={game.icon} alt={game.name} />
             <p className="justify-self-start">{game.name}</p>
@@ -532,7 +550,7 @@ function GamesList({
                   <button
                     className="absolute flex justify-center items-center text-xl text-white font-bold  bg-green-700/80 h-10 px-2 right-1 bottom-2 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-green-400 hover:bg-green-600 shadow-md shadow-black transition-all"
                     onClick={() => {
-                      onHandleShowDetails(games.guid);
+                      onHandleShowDetails(games.guid, games.name);
                     }}
                   >
                     <p>📔 Details</p>
@@ -651,6 +669,7 @@ function FavModal({
   setSearchByGuidToken,
   setFavGameObj,
   setShowFavList,
+  setGameTitle,
 }) {
   function addURL(str) {
     const url = "https://www.giantbomb.com";
@@ -726,6 +745,7 @@ function FavModal({
             <button
               className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none border-4 border-white rounded-2xl"
               onClick={() => {
+                setGameTitle("Games Database");
                 setFavGameObj(null);
                 setSearchByGuidToken(false);
                 setShowFavList(false);
@@ -761,6 +781,7 @@ function FavModal({
 function GameModal({
   gamesList,
   gameId,
+  setGameTitle,
   gameGuid,
   setGameGuid,
   setGameId,
@@ -788,7 +809,6 @@ function GameModal({
       <dialog
         className="flex flex-col z-[100] backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
         open={showDetails}
-        onClose={() => setShowDetails(false)}
       >
         <section className="grid grid-cols-1 grid-rows-[25rem] p-4 bg-gray-900/70 mt-4 max-h-screen sm:w-[70rem] relative">
           {gamesList?.map(
@@ -849,6 +869,7 @@ function GameModal({
                   <button
                     className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none border-4 border-white rounded-2xl"
                     onClick={() => {
+                      setGameTitle("Games Database");
                       setShowDetails(false);
                       setGameGuid(null);
                     }}
@@ -858,6 +879,97 @@ function GameModal({
                 </>
               )
           )}
+        </section>
+      </dialog>
+    </>
+  );
+}
+
+function detailsModal({
+  favGameObj,
+  searchByGuidToken,
+  setSearchByGuidToken,
+  setFavGameObj,
+  setShowFavList,
+  setGameTitle,
+  gamesList,
+}) {
+  function addURL(str) {
+    const url = "https://www.giantbomb.com";
+
+    const regex = /href="\//g;
+    const regex2 = /href="..\/..\//g;
+    const regex3 = /href="\/\//g;
+
+    str = str.replace(regex3, `target="_blank" href="https://`);
+    str = str.replace(regex, `target="_blank" href="${url}/`);
+    str = str.replace(regex2, `target="_blank" href="${url}/`);
+    return str;
+  }
+
+  let game = {};
+  favGameObj ? (game = favGameObj) : (game = {});
+
+  return (
+    <>
+      <dialog
+        className="flex flex-col z-[100] backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
+        open={searchByGuidToken}
+      >
+        <section className="grid grid-cols-1 grid-rows-[25rem] p-4 bg-gray-900/70 mt-4 max-h-screen sm:w-[70rem] relative rounded-lg">
+          {gamesList?.map((game) => (
+            <>
+              {game.image.original_url && (
+                <>
+                  <div
+                    style={{
+                      background: `url(${game.image.original_url})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "top",
+                    }}
+                  ></div>
+                </>
+              )}
+              {game.description ? (
+                <article
+                  className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
+                  style={{ width: "100%" }}
+                >
+                  {/* {console.log(games.description)} */}
+                  <h2 className="text-3xl font-bold bg-green-700 text-amber-100 mt-3 border-t-2 border-t-green-500">
+                    {game.name}
+                  </h2>
+                  <h2 className="text-3xl font-bold text-amber-100 mt-3">
+                    Quick Introduction
+                  </h2>
+                  {game.deck && (
+                    <p className="text-2xl text-white p-2 bg-slate-800/40 border-b-[1px] border-blue-400">
+                      {game.deck}
+                    </p>
+                  )}
+                  <article className="sm:grid sm:grid-cols-2 sm:gap-3">
+                    {/* {Parser().parse(games.description)} */}
+                    {Parser().parse(addURL(game.description))}
+                  </article>
+                </article>
+              ) : (
+                <p className="text-slate-300 text-2xl font-bold">
+                  No description available.
+                </p>
+              )}
+              <button
+                className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none border-4 border-white rounded-2xl"
+                onClick={() => {
+                  setGameTitle("Games Database");
+                  setFavGameObj(null);
+                  setSearchByGuidToken(false);
+                  setShowFavList(false);
+                }}
+              >
+                CLOSE DETAILS
+              </button>
+            </>
+          ))}
         </section>
       </dialog>
     </>
