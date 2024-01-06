@@ -942,7 +942,6 @@ function DetailModalInner({
   showDetails,
   setShowDetails,
   gamesListStatus,
-  setGamesListStatus,
 }) {
   return (
     <>
