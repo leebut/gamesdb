@@ -54,7 +54,6 @@ export default function App() {
   // Fetch the games list.
   useEffect(() => {
     if (!query) {
-      // setError("Search for a game.");
       return;
     }
 
@@ -69,7 +68,7 @@ export default function App() {
           if (!res.ok) throw new Error("Could not fetch the games list.");
           const data = await res.json();
           if (!data) throw new Error("Nothing to show.");
-          // console.log(data.results);
+
           setGamesList(data.results);
           setNumItems(data.number_of_total_results);
           oldQuery !== query ? setPage(1) : setPage((page) => Number(page));
@@ -104,10 +103,6 @@ export default function App() {
 
   function handleQueryInput(val) {
     setQuery(val);
-    // console.log(`VAL: ${val}`);
-    // () => {
-    //   console.log(`QUERY: ${query}`);
-    // };
   }
 
   function handleShowDetails(id, title) {
@@ -118,6 +113,11 @@ export default function App() {
 
   // Add and delete to and from addFavList, and slide the favourites list.
   function handleAddFav(fav) {
+    const favArray = favGamesList.some((game) => game.guid === fav.guid);
+    if (favArray) {
+      alert("Game already in the list");
+      return;
+    }
     setFavGamesList((favGamesList) => [...favGamesList, fav]);
   }
   function handelDeleteFav(id) {
@@ -131,13 +131,12 @@ export default function App() {
 
   function handleSearchById(guid) {
     setSearchByGuidToken(true);
-    // alert(`GUID HANDLE SEARCH: ${guid}`);
+
     setGameGuid(guid);
   }
 
   useEffect(
     function () {
-      // getGuidGame();
       async function getGuidGame() {
         if (gameGuid && searchByGuidToken) {
           // URL to search by game id
@@ -170,16 +169,17 @@ export default function App() {
     <>
       <Header setHeaderHeight={setHeaderHeight}>
         <Logo />
-        <SearchInput onHandleQueryInput={handleQueryInput} />
         <FavouritesButton
           favGamesList={favGamesList}
           onHandleShowFavList={handleShowFavList}
         />
+        <SearchInput onHandleQueryInput={handleQueryInput} />
       </Header>
 
       {gamesList.length === 0 && !isLoading && query.length === 0 && (
         <LandingPage headerHeight={headerHeight}>
           <FavGames
+            headerHeight={headerHeight}
             favGamesList={favGamesList}
             onHandelDeleteFav={handelDeleteFav}
             onHandleSearchById={handleSearchById}
@@ -217,6 +217,7 @@ export default function App() {
           headerHeight={headerHeight}
         >
           <FavGames
+            headerHeight={headerHeight}
             favGamesList={favGamesList}
             onHandelDeleteFav={handelDeleteFav}
             onHandleSearchById={handleSearchById}
@@ -238,6 +239,7 @@ export default function App() {
         />
       )}
 
+      {/* Modal from clicking the games list cards. */}
       {gameGuid && showDetails && (
         <DetailsModal
           gamesList={gamesList}
@@ -250,6 +252,8 @@ export default function App() {
           setShowDetails={setShowDetails}
         />
       )}
+
+      {/* Modal from the favourites list. */}
       {favGameObj !== null && (
         <DetailsModal
           favGameObj={favGameObj}
@@ -268,15 +272,16 @@ export default function App() {
 // This also contains the favourites list of games dropdown list.
 
 function Header({ children, setHeaderHeight }) {
+  // Get the header height to position the pagination below it.
   const headerRef = useRef(null);
-
   useEffect(() => {
+    // Give time for the init render to finish.
     const timerId = setTimeout(() => {
       if (headerRef.current) {
         const headerHeight = headerRef.current.offsetHeight;
         setHeaderHeight(headerHeight);
       }
-    }, 100);
+    }, 150);
     return () => clearTimeout(timerId);
   }, [setHeaderHeight]);
 
@@ -350,16 +355,17 @@ function FavGames({
   onHandelDeleteFav,
   onHandleSearchById,
   setGameTitle,
+  headerHeight,
 }) {
-  // console.log(favGamesList);
   return (
     <ul
       id="favourite-games"
-      className="fixed top-32 left-0 text-2xl text-gray-300 z-50 w-max max-h-[80vh] selection:pr-1 bg-gray-900 slide-out overflow-y-scroll"
+      className="fixed left-0 text-2xl text-gray-300 z-50 w-max max-h-[80vh] selection:pr-1 bg-gray-900 slide-out overflow-y-scroll"
+      style={{ top: headerHeight + 20 + "px" }}
     >
       {favGamesList?.map((game) => (
         <li
-          key={game.id}
+          key={game.guid}
           className="grid grid-cols-[7fr_1fr] w-[26rem] bg-gray-800 pr-3 border-r-4 border-white/30 hover:bg-gray-700 transition-all"
         >
           <button
@@ -382,20 +388,19 @@ function FavGames({
 // Landing page component for when the query input is empty.
 function LandingPage({ children, headerHeight }) {
   return (
-    <>
-      <section
-        className="relative flex h-screen flex-col items-center justify-center"
-        style={{
-          background: `url(landing_bg.jpg)`,
-          backgroundAttachment: "fixed",
-          backgroundSize: "cover",
-          backgroundPosition: "bottom center",
-          paddingTop: `${headerHeight}px`,
-          // height: `calc(100vh - ${headerHeight}px)`,
-        }}
-      >
-        {children}
-        {/* <h2
+    <section
+      className="relative flex h-screen flex-col items-center justify-center"
+      style={{
+        background: `url(landing_bg.jpg)`,
+        backgroundAttachment: "fixed",
+        backgroundSize: "cover",
+        backgroundPosition: "bottom center",
+        paddingTop: `${headerHeight}px`,
+        // height: `calc(100vh - ${headerHeight}px)`,
+      }}
+    >
+      {children}
+      {/* <h2
           className="text-7xl sm:text-8xl leading-tight sm:leading-snug font-bold sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
           style={{ transform: `translateY(-${headerHeight}px)` }}
         >
@@ -404,11 +409,10 @@ function LandingPage({ children, headerHeight }) {
           MOBA...?
         </h2> */}
 
-        <div className="absolute bottom-0 bg-gray-800/70 w-screen py-5">
-          <PageFooter />
-        </div>
-      </section>
-    </>
+      <div className="absolute bottom-0 bg-gray-800/70 w-screen py-5">
+        <PageFooter />
+      </div>
+    </section>
   );
 }
 
@@ -474,23 +478,23 @@ function GamesList({
       ) : (
         <ul className="grid grid-cols-1 gap-3 sm:gap-4 mt-5 w-11/12 sm:w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(46rem,46rem))] justify-center">
           {/* md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] */}
-          {gamesList?.map((games) => (
+          {gamesList?.map((game) => (
             <>
               <li
-                key={games.id}
+                key={game.guid}
                 className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_35rem] grid-rows-[repeat(4,minmax(3rem,max-content))] gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 h-max border-emerald-600 border-[1px]"
               >
-                {games.image && (
+                {game.image && (
                   <img
                     className="row-span-2 w-full place-self-start sm:items-center -translate-x-4 -translate-y-4 border border-lime-300 rounded-md shadow-lg shadow-black/50"
-                    src={games.image.icon_url}
+                    src={game.image.icon_url}
                     alt="image for game."
                   />
                 )}
                 <div>
                   <p className="text-3xl sm:text-4xl text-gray-300">
                     <span className="block py-2 pl-2 font-bold bg-gray-900/50 rounded-md border border-gray-500">
-                      {games.name ? games.name : "No Title"}
+                      {game.name ? game.name : "No Title"}
                     </span>
 
                     <span className="text-xl font-bold">
@@ -498,8 +502,8 @@ function GamesList({
                       Release{`(`}d{`)`}:{" "}
                     </span>
                     <span className="text-xl">
-                      {games.original_release_date
-                        ? convertDate(games.original_release_date)
+                      {game.original_release_date
+                        ? convertDate(game.original_release_date)
                         : " No date."}
                     </span>
                   </p>
@@ -508,15 +512,15 @@ function GamesList({
                   {/* <span className="text-xl text-white font-bold">
                     Platforms:
                   </span> */}
-                  {games.platforms && (
+                  {game.platforms && (
                     <ul className="flex flex-wrap w-full text-xl text-white">
                       <span className="text-xl text-white font-bold">
                         Platforms:
                       </span>
-                      {games.platforms.map((platform) => (
+                      {game.platforms.map((platform) => (
                         <li
                           className="px-2 py-1 m-1 border border-cyan-600 rounded-md bg-purple-900/20"
-                          key={platform.id}
+                          key={`${game.guid}${platform.id}`}
                         >
                           {platform.name}
                         </li>
@@ -524,12 +528,12 @@ function GamesList({
                     </ul>
                   )}
                 </div>
-                {games.deck ? (
+                {game.deck ? (
                   <p className="col-span-2 text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
                     <span className="font-bold">Synopsis:</span>{" "}
-                    {games.deck.length > 150
-                      ? games.deck.slice(0, 150) + "..."
-                      : games.deck}
+                    {game.deck.length > 150
+                      ? game.deck.slice(0, 150) + "..."
+                      : game.deck}
                   </p>
                 ) : (
                   <p className="col-span-2 text-xl text-sky-200 p-2 m-1 border border-cyan-600 rounded-md bg-gray-700">
@@ -539,7 +543,7 @@ function GamesList({
 
                 <a
                   className="col-span-2 text-lg sm:text-2xl text-gray-300 font-bold"
-                  href={games.site_detail_url}
+                  href={game.site_detail_url}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -547,11 +551,11 @@ function GamesList({
                 </a>
 
                 {/* Open and close modal button */}
-                {games.description && (
+                {game.description && (
                   <button
                     className="absolute flex justify-center items-center text-xl text-white font-bold  bg-green-700/80 h-10 px-2 right-1 bottom-2 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-green-400 hover:bg-green-600 shadow-md shadow-black transition-all"
                     onClick={() => {
-                      onHandleShowDetails(games.guid, games.name);
+                      onHandleShowDetails(game.guid, game.name);
                     }}
                   >
                     <p>📔 Details</p>
@@ -562,11 +566,7 @@ function GamesList({
                 <button
                   className="absolute left-[3.5rem] top-16 sm:left-[6.5rem] sm:top-[7.5rem] rounded-full bg-yellow-200/80 text-3xl  text-white font-bold p-1 hover:scale-125 hover:bg-yellow-300 px-2 border-white border-t-[2px] border-l-[2px] transition-all"
                   onClick={() => {
-                    handleAddNewFav(
-                      games.guid,
-                      games.name,
-                      games.image.icon_url
-                    );
+                    handleAddNewFav(game.guid, game.name, game.image.icon_url);
                   }}
                 >
                   💗
@@ -678,6 +678,7 @@ function DetailsModal({
   showDetails,
   setShowDetails,
 }) {
+  // Find instances of incomplete URLs in the big description HTML object.
   function addURL(str) {
     const url = "https://www.giantbomb.com";
 
@@ -699,46 +700,45 @@ function DetailsModal({
   gamesList ? (gamesListStatus = true) : false;
 
   return (
-    <>
-      <dialog
-        className="flex flex-col z-[100] backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
-        open={favGameObj ? searchByGuidToken : showDetails}
-      >
-        <section className="grid grid-cols-1 grid-rows-[25rem] p-4 bg-gray-900/70 mt-4 max-h-screen sm:w-[70rem] relative rounded-lg">
-          {gamesList ? (
-            gamesList?.map(
-              (game) =>
-                game.guid === gameGuid && (
-                  <>
-                    <DetailModalInner
-                      gamesListStatus={gamesListStatus}
-                      // setGamesListStatus={setGamesListStatus}
-                      game={game}
-                      addURL={addURL}
-                      gameGuid={gameGuid}
-                      setGameGuid={setGameGuid}
-                      showDetails={showDetails}
-                      setShowDetails={setShowDetails}
-                      setGameTitle={setGameTitle}
-                    />
-                  </>
-                )
-            )
-          ) : (
-            <>
-              <DetailModalInner
-                game={game}
-                addURL={addURL}
-                setGameTitle={setGameTitle}
-                setFavGameObj={setFavGameObj}
-                setSearchByGuidToken={setSearchByGuidToken}
-                setShowFavList={setShowFavList}
-              />
-            </>
-          )}
-        </section>
-      </dialog>
-    </>
+    <dialog
+      className="flex flex-col z-[100] backdrop-blur-sm justify-center items-center w-screen h-screen bg-gray-800/40 fixed overflow-y-scroll top-0 left-0"
+      open={favGameObj ? searchByGuidToken : showDetails}
+    >
+      <section className="grid grid-cols-1 grid-rows-[25rem] p-4 bg-gray-900/70 mt-4 max-h-screen sm:w-[70rem] relative rounded-lg overflow-auto">
+        {gamesList ? (
+          gamesList?.map(
+            (game) =>
+              game.guid === gameGuid && (
+                // <>
+                <DetailModalInner
+                  key={game.guid}
+                  gamesListStatus={gamesListStatus}
+                  game={game}
+                  addURL={addURL}
+                  gameGuid={gameGuid}
+                  setGameGuid={setGameGuid}
+                  showDetails={showDetails}
+                  setShowDetails={setShowDetails}
+                  setGameTitle={setGameTitle}
+                />
+                // </>
+              )
+          )
+        ) : (
+          // <>
+          <DetailModalInner
+            key={favGameObj.guid}
+            game={game}
+            addURL={addURL}
+            setGameTitle={setGameTitle}
+            setFavGameObj={setFavGameObj}
+            setSearchByGuidToken={setSearchByGuidToken}
+            setShowFavList={setShowFavList}
+          />
+          // </>
+        )}
+      </section>
+    </dialog>
   );
 }
 
@@ -769,7 +769,7 @@ function DetailModalInner({
       )}
       {game.description ? (
         <article
-          className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-y-scroll overflow-x-auto"
+          className="flex flex-col bg-gray-700/40 p-4 text-2xl text-slate-300 overflow-auto"
           style={{ width: "100%" }}
         >
           {/* {console.log(games.description)} */}
@@ -784,10 +784,9 @@ function DetailModalInner({
               {game.deck}
             </p>
           )}
-          <article className="sm:grid sm:grid-cols-2 sm:gap-3">
-            {/* {Parser().parse(games.description)} */}
-            {Parser().parse(addURL(game.description))}
-          </article>
+
+          {/* {Parser().parse(games.description)} */}
+          {Parser().parse(addURL(game.description))}
         </article>
       ) : (
         <p className="text-slate-300 text-2xl font-bold">
@@ -811,7 +810,6 @@ function DetailModalInner({
         <button
           className="bg-red-800 my-3 text-white h-fit text-2xl font-bold p-3 outline-none border-4 border-white rounded-2xl"
           onClick={() => {
-            alert("closing");
             setGameTitle("Games Database");
             setShowDetails(false);
             setGameGuid(null);
