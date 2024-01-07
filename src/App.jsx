@@ -230,6 +230,7 @@ export default function App() {
         ""
       ) : (
         <PageCount
+          ignoreMarginTop={true}
           numItems={numItems}
           page={page}
           setPage={setPage}
@@ -566,6 +567,7 @@ function PageCount({
   query,
   setIsPageClicked,
   headerHeight,
+  ignoreMarginTop,
 }) {
   const totalGames = numItems;
   const numPages = Math.ceil(numItems / 10);
@@ -577,7 +579,10 @@ function PageCount({
       ) : (
         <div
           className="w-4/6 flex flex-col items-center mx-auto"
-          style={{ marginTop: headerHeight + 20 + "px" }}
+          style={{
+            marginTop: ignoreMarginTop ? 20 + "px" : headerHeight + 20 + "px",
+          }}
+          // style={{ marginTop: headerHeight + 20 + "px" }}
         >
           {numItems === 1 ? (
             <p className="ml-3 text-2xl text-gray-300 font-bold">
