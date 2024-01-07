@@ -303,7 +303,6 @@ function Logo() {
         <img src="logo.png" alt="Logo" />
       </figure>
     </div>
-    // <h2 className="text-4xl text-white font-bold">Games...Games...Games</h2>
   );
 }
 
@@ -345,10 +344,6 @@ function FavouritesButton({ favGamesList, onHandleShowFavList }) {
     </button>
   );
 }
-
-// function FavModal({ favGameObj }) {
-//   return <p className="text-white text-4xl">{favGameObj.name}</p>;
-// }
 
 function FavGames({
   favGamesList,
@@ -396,18 +391,9 @@ function LandingPage({ children, headerHeight }) {
         backgroundSize: "cover",
         backgroundPosition: "bottom center",
         paddingTop: `${headerHeight}px`,
-        // height: `calc(100vh - ${headerHeight}px)`,
       }}
     >
       {children}
-      {/* <h2
-          className="text-7xl sm:text-8xl leading-tight sm:leading-snug font-bold sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
-          style={{ transform: `translateY(-${headerHeight}px)` }}
-        >
-          Platform, FPS,
-          <br />
-          MOBA...?
-        </h2> */}
 
       <div className="absolute bottom-0 bg-gray-800/70 w-screen py-5">
         <PageFooter />
@@ -473,11 +459,9 @@ function GamesList({
         </h2>
       )}
       {!query ? (
-        // <h2 className="text-white text-2xl">Enter a game name to search.</h2>
         ""
       ) : (
         <ul className="grid grid-cols-1 gap-3 sm:gap-4 mt-5 w-11/12 sm:w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(46rem,46rem))] justify-center">
-          {/* md:grid-cols-[repeat(auto-fill,minmax(50rem,1fr))] */}
           {gamesList?.map((game) => (
             <li
               key={game.guid}
@@ -508,9 +492,6 @@ function GamesList({
                 </p>
               </div>
               <div>
-                {/* <span className="text-xl text-white font-bold">
-                    Platforms:
-                  </span> */}
                 {game.platforms && (
                   <ul className="flex flex-wrap w-full text-xl text-white">
                     <span className="text-xl text-white font-bold">
@@ -783,7 +764,6 @@ function DetailModalInner({
             </p>
           )}
 
-          {/* {Parser().parse(games.description)} */}
           {Parser().parse(addURL(game.description))}
         </article>
       ) : (
