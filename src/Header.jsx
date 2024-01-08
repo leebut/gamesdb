@@ -66,7 +66,7 @@ export function FavouritesButton({ favGamesList, onHandleShowFavList }) {
       className="bg-gray-600 p-2 rounded-lg border-2 border-yellow-300 hover:border-2 hover:border-white transition-all"
       onClick={onHandleShowFavList}
     >
-      <span className="text-4xl">💗</span>&nbsp;
+      <span className="text-2xl sm:text-4xl">💗</span>&nbsp;
       <span className="font-bold text-white">
         <sup className="text-2xl bg-red-800 rounded-full px-2 border border-red-300">
           {favGamesList.length}
