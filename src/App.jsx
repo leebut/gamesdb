@@ -193,7 +193,7 @@ export default function App() {
           <LandingHeaderSection headerHeight={headerHeight} />
         </LandingPage>
       )}
-      {error && <ErrorMessage error={error} />}
+      {error && <ErrorMessage error={error} headerHeight={headerHeight} />}
 
       {isLoading ? (
         ""
@@ -285,7 +285,7 @@ function FavGames({
     <ul
       id="favourite-games"
       className="fixed left-0 text-2xl text-gray-300 z-50 w-max max-h-[80vh] selection:pr-1 bg-gray-900 slide-out overflow-y-scroll"
-      style={{ top: headerHeight + 20 + "px" }}
+      style={{ top: headerHeight + 5 + "vh" }}
     >
       {favGamesList?.map((game) => (
         <li
@@ -319,7 +319,7 @@ function LandingPage({ children, headerHeight }) {
         backgroundAttachment: "fixed",
         backgroundSize: "cover",
         backgroundPosition: "bottom center",
-        paddingTop: `${headerHeight}px`,
+        paddingTop: `${headerHeight}vh`,
       }}
     >
       {children}
@@ -335,7 +335,7 @@ function LandingHeaderSection({ headerHeight }) {
   return (
     <div
       className="sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
-      style={{ transform: `translateY(-${headerHeight}px)` }}
+      style={{ transform: `translateY(-${headerHeight}vh)` }}
     >
       <h2 className="text-7xl sm:text-8xl leading-tight sm:leading-snug font-bold">
         Platform, FPS,
@@ -366,7 +366,7 @@ function PageCount({
         <div
           className="w-11/12 sm:w-4/6 flex flex-col items-center mx-auto"
           style={{
-            marginTop: ignoreMarginTop ? 20 + "px" : headerHeight + 20 + "px",
+            paddingTop: ignoreMarginTop ? 20 + "px" : headerHeight + 5 + "vh",
           }}
         >
           {numItems === 1 ? (
@@ -412,7 +412,7 @@ function Loader({ searchByGuidToken, headerHeight }) {
     <>
       <div
         className="flex justify-center w-screen"
-        style={{ marginTop: headerHeight + 20 + "px" }}
+        style={{ paddingTop: headerHeight + 3 + "vh" }}
       >
         {!searchByGuidToken ? (
           <h2 className="text-4xl text-white">Loading the games list....</h2>
@@ -425,10 +425,15 @@ function Loader({ searchByGuidToken, headerHeight }) {
   );
 }
 
-function ErrorMessage({ error }) {
+function ErrorMessage({ error, headerHeight }) {
   return (
     <>
-      <h2 className="text-4xl bg-red-300 font-bold">{error}</h2>
+      <h2
+        className="text-4xl bg-red-300 font-bold"
+        style={{ paddingTop: headerHeight + 3 + "vh" }}
+      >
+        {error}
+      </h2>
     </>
   );
 }

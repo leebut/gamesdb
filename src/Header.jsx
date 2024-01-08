@@ -8,9 +8,11 @@ export default function Header({ children, setHeaderHeight }) {
     const timerId = setTimeout(() => {
       if (headerRef.current) {
         const headerHeight = headerRef.current.offsetHeight;
-        setHeaderHeight(headerHeight);
+        const viewPort = window.innerHeight;
+        const vhValue = (headerHeight / viewPort) * 100;
+        setHeaderHeight(vhValue);
       }
-    }, 150);
+    }, 200);
     return () => clearTimeout(timerId);
   }, [setHeaderHeight]);
 

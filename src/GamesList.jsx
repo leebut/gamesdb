@@ -30,7 +30,7 @@ export default function GamesList({
       {gamesList.length === 0 && query && (
         <h2
           className="text-white text-2xl"
-          style={{ marginTop: headerHeight + 20 + "px" }}
+          style={{ paddingTop: headerHeight + 2 + "vh" }}
         >
           No games found matching {query}
         </h2>
