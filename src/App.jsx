@@ -335,7 +335,9 @@ function LandingHeaderSection({ headerHeight }) {
   return (
     <div
       className="sm:self-end sm:mr-16 text-white bg-slate-800/50 px-10 py-5 border border-gray-500 rounded-3xl"
-      style={{ transform: `translateY(-${headerHeight}vh)` }}
+      style={{
+        transform: `translateY(-${headerHeight / 2}vh)`,
+      }}
     >
       <h2 className="text-7xl sm:text-8xl leading-tight sm:leading-snug font-bold">
         Platform, FPS,

@@ -29,7 +29,7 @@ export default function Header({ children, setHeaderHeight }) {
 
 export function Logo() {
   return (
-    <div className="sm:mr-[10rem] max-w-[30rem]">
+    <div className="max-w-[20rem] sm:mr-[10rem] sm:max-w-[30rem]">
       <figure>
         <img src="logo.png" alt="Logo" />
       </figure>
