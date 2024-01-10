@@ -38,15 +38,15 @@ export default function GamesList({
       {!query ? (
         ""
       ) : (
-        <ul className="grid grid-cols-1 gap-3 sm:gap-4 mt-5 w-11/12 sm:w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(46rem,46rem))] justify-center">
+        <ul className="grid grid-cols-1 gap-3 sm:gap-10 mt-5 w-11/12 sm:grid-cols-[repeat(auto-fit,minmax(49rem,49rem))] justify-center">
           {gamesList?.map((game) => (
             <li
               key={game.guid}
-              className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_35rem] grid-rows-[repeat(4,minmax(3rem,max-content))] gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 h-max border-emerald-600 border-[1px]"
+              className="grid relative items-center grid-cols-[6rem_1fr] sm:grid-cols-[9rem_35rem] grid-rows-[repeat(4,minmax(3rem,max-content))] gap-x-2 sm:gap-2 w-full bg-slate-700 p-2 sm:p-10 h-max border-emerald-700 border-2 rounded-xl"
             >
               {game.image && (
                 <img
-                  className="row-span-2 w-full place-self-start sm:items-center -translate-x-4 -translate-y-4 border border-lime-300 rounded-md shadow-lg shadow-black/50"
+                  className="row-span-2 w-full place-self-start sm:items-center -translate-x-5 -translate-y-5 sm:-translate-x-12 sm:-translate-y-12 border-2 border-lime-300 rounded-md shadow-lg shadow-black/50"
                   src={game.image.icon_url}
                   alt="image for game."
                 />
@@ -72,7 +72,7 @@ export default function GamesList({
                 {game.platforms && (
                   <ul className="flex flex-wrap w-full text-xl text-white">
                     <span className="text-xl text-white font-bold">
-                      Platforms:
+                      Platforms: &nbsp;
                     </span>
                     {game.platforms.map((platform) => (
                       <li
@@ -110,7 +110,7 @@ export default function GamesList({
               {/* Open and close modal button */}
               {game.description && (
                 <button
-                  className="absolute flex justify-center items-center text-xl text-white font-bold  bg-green-700/80 h-10 px-2 right-1 bottom-2 rounded-lg cursor-pointer border-l-[1px] border-t-[1px] border-green-400 hover:bg-green-600 shadow-md shadow-black transition-all"
+                  className="absolute flex justify-center items-center text-xl text-white font-bold  bg-green-700/80 h-10 p-2 bottom-3 right-3 sm:bottom-6 sm:p-6 sm:right-6 rounded-lg cursor-pointer border-l-[1px] border border-green-400 hover:bg-green-600 shadow-md shadow-black transition-all"
                   onClick={() => {
                     onHandleShowDetails(game.guid, game.name);
                   }}
@@ -121,7 +121,7 @@ export default function GamesList({
 
               {/* Save to favourites button */}
               <button
-                className="absolute left-[3.5rem] top-16 sm:left-[6.5rem] sm:top-[7.5rem] rounded-full bg-yellow-200/80 text-3xl  text-white font-bold p-1 hover:scale-125 hover:bg-yellow-300 px-2 border-white border-t-[2px] border-l-[2px] transition-all"
+                className="absolute left-[3.5rem] top-16 sm:left-[6.5rem] sm:top-[7.5rem] rounded-full bg-yellow-200/80 text-3xl text-white font-bold p-1 hover:scale-125 hover:bg-yellow-300 px-2 border-white border-t-2 border-l-2 transition-all"
                 onClick={() => {
                   handleAddNewFav(game.guid, game.name, game.image.icon_url);
                 }}

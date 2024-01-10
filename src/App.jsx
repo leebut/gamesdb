@@ -67,7 +67,6 @@ export default function App() {
         try {
           setError("");
           setIsLoading(true);
-          // const res = await fetch(searchResources);
           const res = await fetch(searchUrl);
 
           if (!res.ok) throw new Error("Could not fetch the games list.");
