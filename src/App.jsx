@@ -1,17 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useReducer } from "react";
 
 import "./App.css";
 import GamesList from "./GamesList";
-import Header, { Logo } from "./Header";
-import { SearchInput } from "./Header";
-import { FavouritesButton } from "./Header";
+import Header, { Logo, SearchInput, FavouritesButton } from "./Header";
+
 import DetailsModal from "./DetailsModal";
 
 const apiKey = import.meta.env.VITE_API_KEY;
 const searchTerm = "search";
 const resources = "game";
 // const baseUrl = `https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json`;
-// const searchResources = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}`;
+
+// Reducer to handle adding and deleting from the favGamesList.
+function favListReducer(favGamesList, action) {
+  const { fav, id } = action;
+  switch (action.type) {
+    case "add": {
+      const favArray = favGamesList.some((game) => game.guid === fav.guid);
+      if (!favArray) {
+        return [...favGamesList, fav];
+      } else {
+        alert("Game already in the list");
+        return favGamesList;
+      }
+    }
+    case "delete": {
+      if (id) {
+        return favGamesList.filter((game) => game.guid !== id);
+      } else {
+        console.error("No favourite games.");
+        return favGamesList;
+      }
+    }
+
+    default: {
+      throw Error("You cannot do that" + action.type);
+    }
+  }
+}
 
 export default function App() {
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -30,13 +56,12 @@ export default function App() {
   const [searchByGuidToken, setSearchByGuidToken] = useState(false);
   const [favGameObj, setFavGameObj] = useState(null);
   const [showFavList, setShowFavList] = useState(false);
-  const [favGamesList, setFavGamesList] = useState(function () {
-    const storedGames = localStorage.getItem("saved_games");
-    if (!storedGames) {
-      return [];
-    }
-    return JSON.parse(storedGames);
-  });
+  const [favGamesList, dispatch] = useReducer(
+    favListReducer,
+    localStorage.getItem("saved_games")
+      ? JSON.parse(localStorage.getItem("saved_games"))
+      : []
+  );
 
   // URL to fetch the games list based on the query state.
   const searchUrl = `https://corsproxy.io/?https://www.giantbomb.com/api/${searchTerm}/?api_key=${apiKey}&format=json&query="${query}"&resources=${resources}&page=${page}`;
@@ -115,27 +140,26 @@ export default function App() {
     setShowDetails(true);
   }
 
-  // Add and delete to and from addFavList, and slide the favourites list.
+  // Add and delete to and from addFavList.
   function handleAddFav(fav) {
-    const favArray = favGamesList.some((game) => game.guid === fav.guid);
-    if (favArray) {
-      alert("Game already in the list");
-      return;
-    }
-    setFavGamesList((favGamesList) => [...favGamesList, fav]);
+    dispatch({
+      type: "add",
+      fav: fav,
+    });
   }
-  function handelDeleteFav(id) {
-    setFavGamesList((favGamesList) =>
-      favGamesList.filter((game) => game.guid !== id)
-    );
+  function handleDeleteFav(id) {
+    dispatch({
+      type: "delete",
+      id: id,
+    });
   }
+
   function handleShowFavList() {
     setShowFavList((showFavList) => !showFavList);
   }
 
   function handleSearchById(guid) {
     setSearchByGuidToken(true);
-
     setGameGuid(guid);
   }
 
@@ -185,7 +209,7 @@ export default function App() {
           <FavGames
             headerHeight={headerHeight}
             favGamesList={favGamesList}
-            onHandelDeleteFav={handelDeleteFav}
+            onHandleDeleteFav={handleDeleteFav}
             onHandleSearchById={handleSearchById}
             setGameTitle={setGameTitle}
           />
@@ -223,7 +247,7 @@ export default function App() {
           <FavGames
             headerHeight={headerHeight}
             favGamesList={favGamesList}
-            onHandelDeleteFav={handelDeleteFav}
+            onHandleDeleteFav={handleDeleteFav}
             onHandleSearchById={handleSearchById}
             setGameTitle={setGameTitle}
           />
@@ -275,7 +299,7 @@ export default function App() {
 
 function FavGames({
   favGamesList,
-  onHandelDeleteFav,
+  onHandleDeleteFav,
   onHandleSearchById,
   setGameTitle,
   headerHeight,
@@ -301,7 +325,7 @@ function FavGames({
             <img className="w-12 h-12" src={game.icon} alt={game.name} />
             <p className="justify-self-start">{game.name}</p>
           </button>
-          <button onClick={() => onHandelDeleteFav(game.guid)}>🗑️</button>
+          <button onClick={() => onHandleDeleteFav(game.guid)}>🗑️</button>
         </li>
       ))}
     </ul>
